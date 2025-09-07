@@ -15,6 +15,13 @@
     .table th, .table td { text-align:left; padding:7px 9px; border-bottom:1px solid #ddd; }
     .table thead tr { background:#e9e9e9; }
     #verify-all { margin: 12px 0 0 0; }
+
+    /* Modal using your existing pattern */
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: none; align-items: center; justify-content: center; z-index: 9999; }
+    .modal.open { display: flex; }
+    .modal-content { background:#fff; color:#000; padding:14px 16px; border:2px solid #333; border-radius:6px;
+      box-shadow:0 12px 40px rgba(0,0,0,.4); max-width:900px; width:95%; max-height:85vh; overflow:auto; }
+    .modal-content h2 { margin-top:0; }
   </style>
 </head>
 <body>
@@ -40,6 +47,7 @@
     <select id="network-select" style="font-size:14px; padding:2px 6px; margin-left:6px;"></select>
   </div>
 </nav>
+
 <div id="container">
   <div id="sidebar">
     <a href="faq.html">FAQ</a>
@@ -47,6 +55,7 @@
     <a href="contact.html">Contact</a>
     <a href="about.html">About</a>
   </div>
+
   <div id="main">
     <h2 style="margin-top:0;margin-bottom:10px;">The Truth is in the Code</h2>
     <p>
@@ -56,8 +65,10 @@
         Click “Verify Now” to perform on-chain checks (code at address, proxy → implementation via EIP-1967). No wallet needed.
       </span>
     </p>
+
     <button id="verify-all" class="stake-btn">Verify All</button>
     <div id="verify-all-result" class="verify-result"></div>
+
     <table class="table" id="truth-table">
       <thead>
         <tr>
@@ -70,9 +81,9 @@
           <th>Verify</th>
         </tr>
       </thead>
-      <tbody>
-      </tbody>
+      <tbody></tbody>
     </table>
+
     <div style="margin-top:28px;background:#f8f8f8;padding:17px 14px 10px 14px;border:1.5px solid #bbb;border-radius:7px;max-width:720px;">
       <b>Why does this matter?</b><br>
       <span style="color:#333;">
@@ -80,15 +91,19 @@
       </span>
       <div class="report muted small" id="tech-notes"></div>
     </div>
+
     <div id="truth-report" class="report" style="margin-top:18px;"></div>
   </div>
 </div>
+
 <footer>
   © 1994–2025 Rebel Pool. Best viewed in Mosaic 2.0. Staking involves risk.
 </footer>
+
 <script src="js/chain.js"></script>
 
 <script>
+/* ===== Masthead clock ===== */
 function updateMastheadDateAndClock() {
   const d = new Date();
   const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -102,81 +117,121 @@ function updateMastheadDateAndClock() {
 updateMastheadDateAndClock();
 setInterval(updateMastheadDateAndClock, 1000);
 
+function esc(s){ return (s||"").toString().replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]); }
+function toGithubBlob(path) {
+  return `https://github.com/rebel-pool/rebel-pool.github.io/blob/main/${path.replace(/^\/+/, '')}`;
+}
+
+function showTestResultsModal(contractLabel, testText, summaryHTML) {
+  const wrap = document.createElement('div');
+  wrap.className = 'modal';
+  wrap.innerHTML = `
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="test-modal-title">
+      <h2 id="test-modal-title">${esc(contractLabel)} — Test Results</h2>
+      <div style="margin:10px 0; font-weight:bold;">${summaryHTML || ''}</div>
+      <pre style="background:#f7f7f7; padding:10px; border:1px solid #ccc; white-space:pre-wrap; font-size:12px; line-height:1.45;">${esc(testText)}</pre>
+      <div style="text-align:right; margin-top:12px;">
+        <button class="stake-btn" id="copy-log">Copy Log</button>
+        <button class="stake-btn" id="close-modal">Close</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(wrap);
+  function close(){ wrap.classList.remove('open'); setTimeout(()=>wrap.remove(), 120); }
+  wrap.addEventListener('click', e => { if (e.target === wrap) close(); });
+  wrap.querySelector('#close-modal').addEventListener('click', close);
+  document.addEventListener('keydown', function escClose(ev){ if (ev.key === 'Escape'){ close(); document.removeEventListener('keydown', escClose); }});
+  wrap.querySelector('#copy-log').addEventListener('click', async () => {
+    const raw = testText;
+    try { await navigator.clipboard.writeText(raw); } catch {}
+  });
+  requestAnimationFrame(() => wrap.classList.add('open'));
+}
+
+window.showTestResultsModal = showTestResultsModal;
+
 window.addEventListener("DOMContentLoaded", function() {
+  renderNetworkSelector("network-select", () => location.reload());
   const cfg = window.getNetConfig ? getNetConfig() : {};
+  const explorerBase = cfg.explorer || "https://testnet.monadscan.com";
+
   const AQUA = cfg.coin?.aqua?.name || "AquaMON";
   const AQUA_SYM = cfg.coin?.aqua?.symbol || "stMON";
   const ARC = cfg.coin?.arc?.name || "ArcMON";
   const ARC_SYM = cfg.coin?.arc?.symbol || "wstMON";
+
 
   const CONTRACTS = [
     {
       key: "POOL",
       label: "Pool Core",
       address: cfg.pool,
-      code: "StakePoolCore.sol",
-      codeLink: "https://rebel-pool.github.io/contracts/StakePoolCore.sol",
+      codePath: "contracts/StakePoolCore.sol",
       compiler: "Solidity 0.8.24<br>Optimizer: 200",
-      test: "https://rebel-pool.github.io/contracts/tests/StakePoolCore.t.sol",
-      results: "https://rebel-pool.github.io/contracts/tests/StakePoolCore_test_results.txt",
-      resId: "res-pool",
+      testPath: "contracts/tests/StakePoolCore.t.sol",
+      resultsPath: "contracts/tests/StakePoolCore_test_results.txt",
       verifyId: "verify-result-1"
     },
     {
       key: "AQUA",
       label: `${AQUA} (${AQUA_SYM})`,
       address: cfg.aquamon,
-      code: "AquaMON.sol",
-      codeLink: "https://rebel-pool.github.io/contracts/AquaMON.sol",
+      codePath: "contracts/AquaMON.sol",
       compiler: "Solidity 0.8.24<br>Optimizer: 200",
-      test: "https://rebel-pool.github.io/contracts/tests/AquaMON.t.sol",
-      results: "https://rebel-pool.github.io/contracts/tests/AquaMON_test_results.txt",
-      resId: "res-aqua",
+      testPath: "contracts/tests/AquaMON.t.sol",
+      resultsPath: "contracts/tests/AquaMON_test_results.txt",
       verifyId: "verify-result-2"
     },
     {
       key: "ARC",
       label: `${ARC} (${ARC_SYM})`,
       address: cfg.arcmon,
-      code: "ArcMON.sol",
-      codeLink: "https://rebel-pool.github.io/contracts/ArcMON.sol",
+      codePath: "contracts/ArcMON.sol",
       compiler: "Solidity 0.8.24<br>Optimizer: 200",
-      test: "https://rebel-pool.github.io/contracts/tests/ArcMON.t.sol",
-      results: "https://rebel-pool.github.io/contracts/tests/ArcMON_test_results.txt",
-      resId: "res-arc",
+      testPath: "contracts/tests/ArcMON.t.sol",
+      resultsPath: "contracts/tests/ArcMON_test_results.txt",
       verifyId: "verify-result-3"
     }
   ];
 
   const tb = document.querySelector("#truth-table tbody");
-  tb.innerHTML = "";
-  for (const c of CONTRACTS) {
-    tb.innerHTML += `
-      <tr>
-        <td><b>${c.label}</b></td>
-        <td>
-          <a href="https://testnet.monadscan.com/address/${c.address}" target="_blank" style="color:#00308f;">
-            ${c.address}
-          </a>
-        </td>
-        <td><a href="${c.codeLink}" target="_blank" style="color:#007642;">View on GitHub</a></td>
-        <td>${c.compiler}</td>
-        <td><a href="${c.test}" target="_blank">View test</a></td>
-        <td>
-          <a href="${c.results}" target="_blank">Open</a>
-          &nbsp;|&nbsp;
-          <button ... onclick="loadResult('${c.key}')">Show Results</button>
-        </td>
-        <td>
-          <button class="stake-btn" onclick="verifyContract('${c.key}','${c.verifyId}')">Verify Now</button>
-          <div class="verify-result" id="${c.verifyId}"></div>
-        </td>
-      </tr>
-    `;
-  }
+  tb.innerHTML = CONTRACTS.map(c => `
+    <tr>
+      <td><b>${c.label}</b></td>
+      <td>
+        <a href="${explorerBase}/address/${c.address}" target="_blank" style="color:#00308f;">
+          ${c.address}
+        </a>
+      </td>
+      <td><a href="${toGithubBlob(c.codePath)}" target="_blank" rel="noopener" style="color:#007642;">View on GitHub</a></td>
+      <td>${c.compiler}</td>
+      <td><a href="${toGithubBlob(c.testPath)}" target="_blank" rel="noopener">View test</a></td>
+      <td>
+        <a href="${toGithubBlob(c.resultsPath)}" target="_blank" rel="noopener">Open</a>
+        &nbsp;|&nbsp;
+        <button class="stake-btn" style="padding:2px 8px;font-size:12px;" onclick="loadResult('${c.key}')">Show Results</button>
+      </td>
+      <td>
+        <button class="stake-btn" onclick="verifyContract('${c.key}','${c.verifyId}')">Verify Now</button>
+        <div class="verify-result" id="${c.verifyId}"></div>
+      </td>
+    </tr>
+  `).join("");
+
+  document.getElementById("tech-notes").textContent =
+    "Checks performed:\n" +
+    "• Code at proxy address (non-zero bytecode)\n" +
+    "• EIP-1967 implementation slot → implementation address\n" +
+    "• Code at implementation address\n" +
+    "• Admin slot (informational)\n" +
+    "Notes: Runs only on click; no wallet needed; uses config-based RPC fallback.";
 });
 </script>
+
+<!-- ethers (verify logic depends on it) -->
 <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+
+<!-- truth.js should provide: verifyContract(), loadResult() that calls showTestResultsModal() and uses robust summarizeForge -->
 <script src="js/truth.js"></script>
 </body>
 </html>

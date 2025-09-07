@@ -200,6 +200,9 @@ function summarizeForge(txt){
   return { passed, failed, warnings };
 }
 
+function toGithubBlob(path) {
+  return `https://github.com/rebel-pool/rebel-pool.github.io/blob/main/${path}`;
+}
 
 async function loadResult(key){
   const url = TEST_FILES[key];

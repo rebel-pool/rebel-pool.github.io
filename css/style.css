@@ -205,8 +205,8 @@ footer{
 
 /* ---------- Utilities (used across pages inc. Stats) ---------- */
 .cards{ display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:14px; }
-.card{ border:1px solid #222; padding:12px; background:#f6f6f6; }
-.card h3{ margin:0 0 8px; }
+.stat_card{ border:1px solid #222; padding:12px; background:#f6f6f6; }
+.stat_card h3{ margin:0 0 8px; }
 .kv{ display:grid; grid-template-columns:180px 1fr; gap:8px 12px; align-items:center; }
 .kv .k{ color:var(--ink-muted); }
 .kv .v{ color:var(--ink); }
