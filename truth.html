@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Code Truth | Rebel Pool</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .report { margin-top: 8px; font-family: monospace; white-space: pre-wrap; }
+    .ok { color:#2e7d32; }
+    .warn { color:#e65100; }
+    .err { color:#c62828; }
+    .muted { color:#777; }
+    .verify-result { margin-top:6px; }
+    .table { width:100%; border-collapse: collapse; margin-top: 18px; }
+    .table th, .table td { text-align:left; padding:7px 9px; border-bottom:1px solid #ddd; }
+    .table thead tr { background:#e9e9e9; }
+    #verify-all { margin: 12px 0 0 0; }
+  </style>
+</head>
+<body>
+<div class="masthead">
+  <div class="masthead-title">REBEL POOL</div>
+  <div class="masthead-copyright">&copy; 2025 Rebel Pool Cooperative. All Rights Reserved.</div>
+  <div class="masthead-datebar"></div>
+  <div class="masthead-date">
+    <span id="masthead-date"></span>
+    <span id="masthead-clock"></span>
+  </div>
+  <div class="masthead-datebar"></div>
+</div>
+<nav id="topnav" style="display: flex; align-items: center;">
+  <a href="index.html">Home</a>
+  <a href="stake.html">Stake</a>
+  <a href="withdraw.html">Withdraw</a>
+  <a href="wrap.html">Wrap / Unwrap</a>
+  <a href="stats.html">Pool Stats</a>
+  <a href="truth.html" class="active">Code Truth</a>
+  <div style="margin-left:auto; display:flex; align-items:center; gap:6px; padding-right: 12px;">
+    <label for="network-select" style="font-size:13px;">Network:</label>
+    <select id="network-select" style="font-size:14px; padding:2px 6px; margin-left:6px;"></select>
+  </div>
+</nav>
+<div id="container">
+  <div id="sidebar">
+    <a href="faq.html">FAQ</a>
+    <a href="validators.html">Validators</a>
+    <a href="contact.html">Contact</a>
+    <a href="about.html">About</a>
+  </div>
+  <div id="main">
+    <h2 style="margin-top:0;margin-bottom:10px;">The Truth is in the Code</h2>
+    <p>
+      <b>Rebel Pool publishes all critical smart contract code and deployment addresses — always open, always verifiable.</b>
+      <br>
+      <span style="color:#555;">
+        Click “Verify Now” to perform on-chain checks (code at address, proxy → implementation via EIP-1967). No wallet needed.
+      </span>
+    </p>
+    <button id="verify-all" class="stake-btn">Verify All</button>
+    <div id="verify-all-result" class="verify-result"></div>
+    <table class="table" id="truth-table">
+      <thead>
+        <tr>
+          <th>Contract</th>
+          <th>Address</th>
+          <th>Source Code</th>
+          <th>Compiler</th>
+          <th>Tests</th>
+          <th>Results</th>
+          <th>Verify</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+    <div style="margin-top:28px;background:#f8f8f8;padding:17px 14px 10px 14px;border:1.5px solid #bbb;border-radius:7px;max-width:720px;">
+      <b>Why does this matter?</b><br>
+      <span style="color:#333;">
+        True DeFi means <b>“Don’t trust — verify.”</b> We link the UI to on-chain facts so anyone can confirm proxies, implementations, and wiring.
+      </span>
+      <div class="report muted small" id="tech-notes"></div>
+    </div>
+    <div id="truth-report" class="report" style="margin-top:18px;"></div>
+  </div>
+</div>
+<footer>
+  © 1994–2025 Rebel Pool. Best viewed in Mosaic 2.0. Staking involves risk.
+</footer>
+<script src="js/chain.js"></script>
+
+<script>
+function updateMastheadDateAndClock() {
+  const d = new Date();
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const formattedDate = d.toLocaleDateString('en-US', options).toUpperCase();
+  document.getElementById('masthead-date').textContent = formattedDate;
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  const ss = String(d.getSeconds()).padStart(2, '0');
+  document.getElementById('masthead-clock').textContent = `${hh}:${mm}:${ss}`;
+}
+updateMastheadDateAndClock();
+setInterval(updateMastheadDateAndClock, 1000);
+
+window.addEventListener("DOMContentLoaded", function() {
+  const cfg = window.getNetConfig ? getNetConfig() : {};
+  const AQUA = cfg.coin?.aqua?.name || "AquaMON";
+  const AQUA_SYM = cfg.coin?.aqua?.symbol || "stMON";
+  const ARC = cfg.coin?.arc?.name || "ArcMON";
+  const ARC_SYM = cfg.coin?.arc?.symbol || "wstMON";
+
+  const CONTRACTS = [
+    {
+      key: "POOL",
+      label: "Pool Core",
+      address: cfg.pool,
+      code: "StakePoolCore.sol",
+      codeLink: "https://rebel-pool.github.io/contracts/StakePoolCore.sol",
+      compiler: "Solidity 0.8.24<br>Optimizer: 200",
+      test: "https://rebel-pool.github.io/contracts/tests/StakePoolCore.t.sol",
+      results: "https://rebel-pool.github.io/contracts/tests/StakePoolCore_test_results.txt",
+      resId: "res-pool",
+      verifyId: "verify-result-1"
+    },
+    {
+      key: "AQUA",
+      label: `${AQUA} (${AQUA_SYM})`,
+      address: cfg.aquamon,
+      code: "AquaMON.sol",
+      codeLink: "https://rebel-pool.github.io/contracts/AquaMON.sol",
+      compiler: "Solidity 0.8.24<br>Optimizer: 200",
+      test: "https://rebel-pool.github.io/contracts/tests/AquaMON.t.sol",
+      results: "https://rebel-pool.github.io/contracts/tests/AquaMON_test_results.txt",
+      resId: "res-aqua",
+      verifyId: "verify-result-2"
+    },
+    {
+      key: "ARC",
+      label: `${ARC} (${ARC_SYM})`,
+      address: cfg.arcmon,
+      code: "ArcMON.sol",
+      codeLink: "https://rebel-pool.github.io/contracts/ArcMON.sol",
+      compiler: "Solidity 0.8.24<br>Optimizer: 200",
+      test: "https://rebel-pool.github.io/contracts/tests/ArcMON.t.sol",
+      results: "https://rebel-pool.github.io/contracts/tests/ArcMON_test_results.txt",
+      resId: "res-arc",
+      verifyId: "verify-result-3"
+    }
+  ];
+
+  const tb = document.querySelector("#truth-table tbody");
+  tb.innerHTML = "";
+  for (const c of CONTRACTS) {
+    tb.innerHTML += `
+      <tr>
+        <td><b>${c.label}</b></td>
+        <td>
+          <a href="https://testnet.monadscan.com/address/${c.address}" target="_blank" style="color:#00308f;">
+            ${c.address}
+          </a>
+        </td>
+        <td><a href="${c.codeLink}" target="_blank" style="color:#007642;">View on GitHub</a></td>
+        <td>${c.compiler}</td>
+        <td><a href="${c.test}" target="_blank">View test</a></td>
+        <td>
+          <a href="${c.results}" target="_blank">Open</a>
+          &nbsp;|&nbsp;
+          <button class="stake-btn" style="padding:2px 8px;font-size:12px;" onclick="loadResult('${c.key}')">Show inline</button>
+          <div id="${c.resId}" class="report muted"></div>
+        </td>
+        <td>
+          <button class="stake-btn" onclick="verifyContract('${c.key}','${c.verifyId}')">Verify Now</button>
+          <div class="verify-result" id="${c.verifyId}"></div>
+        </td>
+      </tr>
+    `;
+  }
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+<script src="js/truth.js"></script>
+</body>
+</html>

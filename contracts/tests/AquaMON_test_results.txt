@@ -1,0 +1,470 @@
+No files changed, compilation skipped
+
+Ran 13 tests for test/AquaMON.t.sol:AquaMONTest
+[PASS] test_approveAndAllowance() (gas: 46088)
+Traces:
+  [46088] Owner::test_approveAndAllowance()
+    ├─ [7946] ERC1967Proxy::fallback(Alice: [0x00000000000000000000000000000000000A11cE], Bob: [0x0000000000000000000000000000000000000B0b]) [staticcall]
+    │   ├─ [3124] AquaMON::allowance(Alice: [0x00000000000000000000000000000000000A11cE], Bob: [0x0000000000000000000000000000000000000B0b]) [delegatecall]
+    │   │   └─ ← [Return] 0
+    │   └─ ← [Return] 0
+    ├─ [0] VM::prank(Alice: [0x00000000000000000000000000000000000A11cE])
+    │   └─ ← [Return]
+    ├─ [22575] ERC1967Proxy::fallback(Bob: [0x0000000000000000000000000000000000000B0b], 1000000000000000000 [1e18])
+    │   ├─ [22253] AquaMON::approve(Bob: [0x0000000000000000000000000000000000000B0b], 1000000000000000000 [1e18]) [delegatecall]
+    │   │   ├─ emit Approval(owner: Alice: [0x00000000000000000000000000000000000A11cE], spender: Bob: [0x0000000000000000000000000000000000000B0b], value: 1000000000000000000 [1e18])
+    │   │   └─ ← [Return] true
+    │   └─ ← [Return] true
+    ├─ [1446] ERC1967Proxy::fallback(Alice: [0x00000000000000000000000000000000000A11cE], Bob: [0x0000000000000000000000000000000000000B0b]) [staticcall]
+    │   ├─ [1124] AquaMON::allowance(Alice: [0x00000000000000000000000000000000000A11cE], Bob: [0x0000000000000000000000000000000000000B0b]) [delegatecall]
+    │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   └─ ← [Return] 1000000000000000000 [1e18]
+    └─ ← [Return]
+
+[PASS] test_convertToSharesAndExternal() (gas: 85875)
+Traces:
+  [85875] Owner::test_convertToSharesAndExternal()
+    ├─ [0] VM::prank(Pool: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
+    │   └─ ← [Return]
+    ├─ [58023] ERC1967Proxy::fallback(Alice: [0x00000000000000000000000000000000000A11cE], 2000000000000000000 [2e18])
+    │   ├─ [53204] AquaMON::mintShares(Alice: [0x00000000000000000000000000000000000A11cE], 2000000000000000000 [2e18]) [delegatecall]
+    │   │   ├─ emit MintShares(to: Alice: [0x00000000000000000000000000000000000A11cE], shares: 2000000000000000000 [2e18])
+    │   │   ├─ [2288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: Alice: [0x00000000000000000000000000000000000A11cE], value: 2000000000000000000 [2e18])
+    │   │   └─ ← [Return]
+    │   └─ ← [Return]
+    ├─ [1900] ERC1967Proxy::fallback(2000000000000000000 [2e18]) [staticcall]
+    │   ├─ [1581] AquaMON::convertToExternal(2000000000000000000 [2e18]) [delegatecall]
+    │   │   ├─ [288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   │   └─ ← [Return] 2000000000000000000 [2e18]
+    │   └─ ← [Return] 2000000000000000000 [2e18]
+    ├─ [1906] ERC1967Proxy::fallback(2000000000000000000 [2e18]) [staticcall]
+    │   ├─ [1587] AquaMON::convertToShares(2000000000000000000 [2e18]) [delegatecall]
+    │   │   ├─ [288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   │   └─ ← [Return] 2000000000000000000 [2e18]
+    │   └─ ← [Return] 2000000000000000000 [2e18]
+    ├─ [3090] Pool::setIndex(3000000000000000000 [3e18])
+    │   └─ ← [Return]
+    ├─ [1900] ERC1967Proxy::fallback(2000000000000000000 [2e18]) [staticcall]
+    │   ├─ [1581] AquaMON::convertToExternal(2000000000000000000 [2e18]) [delegatecall]
+    │   │   ├─ [288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 3000000000000000000 [3e18]
+    │   │   └─ ← [Return] 6000000000000000000 [6e18]
+    │   └─ ← [Return] 6000000000000000000 [6e18]
+    ├─ [1906] ERC1967Proxy::fallback(6000000000000000000 [6e18]) [staticcall]
+    │   ├─ [1587] AquaMON::convertToShares(6000000000000000000 [6e18]) [delegatecall]
+    │   │   ├─ [288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 3000000000000000000 [3e18]
+    │   │   └─ ← [Return] 2000000000000000000 [2e18]
+    │   └─ ← [Return] 2000000000000000000 [2e18]
+    └─ ← [Return]
+
+[PASS] test_initializer_idempotence() (gas: 19099)
+Traces:
+  [19099] Owner::test_initializer_idempotence()
+    ├─ [0] VM::expectRevert(custom error 0xf4844814)
+    │   └─ ← [Return]
+    ├─ [8342] ERC1967Proxy::fallback("Again", "AGAIN", Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496])
+    │   ├─ [3489] AquaMON::initialize("Again", "AGAIN", Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496]) [delegatecall]
+    │   │   └─ ← [Revert] InvalidInitialization()
+    │   └─ ← [Revert] InvalidInitialization()
+    └─ ← [Return]
+
+[PASS] test_metadata() (gas: 29338)
+Traces:
+  [29338] Owner::test_metadata()
+    ├─ [7773] ERC1967Proxy::fallback() [staticcall]
+    │   ├─ [2951] AquaMON::name() [delegatecall]
+    │   │   └─ ← [Return] "AquaMON"
+    │   └─ ← [Return] "AquaMON"
+    ├─ [0] VM::assertEq("AquaMON", "AquaMON") [staticcall]
+    │   └─ ← [Return]
+    ├─ [3668] ERC1967Proxy::fallback() [staticcall]
+    │   ├─ [3346] AquaMON::symbol() [delegatecall]
+    │   │   └─ ← [Return] "stMON"
+    │   └─ ← [Return] "stMON"
+    ├─ [0] VM::assertEq("stMON", "stMON") [staticcall]
+    │   └─ ← [Return]
+    ├─ [645] ERC1967Proxy::fallback() [staticcall]
+    │   ├─ [329] AquaMON::decimals() [delegatecall]
+    │   │   └─ ← [Return] 18
+    │   └─ ← [Return] 18
+    ├─ [2706] ERC1967Proxy::fallback() [staticcall]
+    │   ├─ [2390] AquaMON::pool() [delegatecall]
+    │   │   └─ ← [Return] Pool: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f]
+    │   └─ ← [Return] Pool: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f]
+    └─ ← [Return]
+
+[PASS] test_mint_zeroAddress_and_burn_underflow() (gas: 82983)
+Traces:
+  [82983] Owner::test_mint_zeroAddress_and_burn_underflow()
+    ├─ [0] VM::prank(Pool: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
+    │   └─ ← [Return]
+    ├─ [0] VM::expectRevert(custom error 0xc31eb0e0: d92e233d00000000000000000000000000000000000000000000000000000000)
+    │   └─ ← [Return]
+    ├─ [7543] ERC1967Proxy::fallback(0x0000000000000000000000000000000000000000, 1000000000000000000 [1e18])
+    │   ├─ [2720] AquaMON::mintShares(0x0000000000000000000000000000000000000000, 1000000000000000000 [1e18]) [delegatecall]
+    │   │   └─ ← [Revert] ZeroAddress()
+    │   └─ ← [Revert] ZeroAddress()
+    ├─ [0] VM::prank(Pool: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
+    │   └─ ← [Return]
+    ├─ [58023] ERC1967Proxy::fallback(Alice: [0x00000000000000000000000000000000000A11cE], 1000000000000000000 [1e18])
+    │   ├─ [53204] AquaMON::mintShares(Alice: [0x00000000000000000000000000000000000A11cE], 1000000000000000000 [1e18]) [delegatecall]
+    │   │   ├─ emit MintShares(to: Alice: [0x00000000000000000000000000000000000A11cE], shares: 1000000000000000000 [1e18])
+    │   │   ├─ [2288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: Alice: [0x00000000000000000000000000000000000A11cE], value: 1000000000000000000 [1e18])
+    │   │   └─ ← [Return]
+    │   └─ ← [Return]
+    ├─ [0] VM::prank(Pool: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
+    │   └─ ← [Return]
+    ├─ [0] VM::expectRevert(custom error 0xc31eb0e0: 3999656700000000000000000000000000000000000000000000000000000000)
+    │   └─ ← [Return]
+    ├─ [1501] ERC1967Proxy::fallback(Alice: [0x00000000000000000000000000000000000A11cE], 2000000000000000000 [2e18])
+    │   ├─ [1178] AquaMON::burnShares(Alice: [0x00000000000000000000000000000000000A11cE], 2000000000000000000 [2e18]) [delegatecall]
+    │   │   └─ ← [Revert] InsufficientShares()
+    │   └─ ← [Revert] InsufficientShares()
+    └─ ← [Return]
+
+[PASS] test_onIndexUpdatedAndSyncEmits() (gas: 93108)
+Traces:
+  [93108] Owner::test_onIndexUpdatedAndSyncEmits()
+    ├─ [0] VM::prank(Pool: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
+    │   └─ ← [Return]
+    ├─ [58023] ERC1967Proxy::fallback(Alice: [0x00000000000000000000000000000000000A11cE], 1000000000000000000 [1e18])
+    │   ├─ [53204] AquaMON::mintShares(Alice: [0x00000000000000000000000000000000000A11cE], 1000000000000000000 [1e18]) [delegatecall]
+    │   │   ├─ emit MintShares(to: Alice: [0x00000000000000000000000000000000000A11cE], shares: 1000000000000000000 [1e18])
+    │   │   ├─ [2288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: Alice: [0x00000000000000000000000000000000000A11cE], value: 1000000000000000000 [1e18])
+    │   │   └─ ← [Return]
+    │   └─ ← [Return]
+    ├─ [0] VM::prank(Pool: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
+    │   └─ ← [Return]
+    ├─ [0] VM::expectEmit(true, false, false, true)
+    │   └─ ← [Return]
+    ├─ emit Rebased(newIndex: 2000000000000000000 [2e18])
+    ├─ [8989] ERC1967Proxy::fallback(2000000000000000000 [2e18])
+    │   ├─ [8673] AquaMON::onIndexUpdated(2000000000000000000 [2e18]) [delegatecall]
+    │   │   ├─ emit Rebased(newIndex: 2000000000000000000 [2e18])
+    │   │   └─ ← [Return]
+    │   └─ ← [Return]
+    ├─ [3090] Pool::setIndex(3000000000000000000 [3e18])
+    │   └─ ← [Return]
+    ├─ [0] VM::expectEmit(true, false, false, true)
+    │   └─ ← [Return]
+    ├─ emit Rebased(newIndex: 3000000000000000000 [3e18])
+    ├─ [3328] ERC1967Proxy::fallback()
+    │   ├─ [3012] AquaMON::sync() [delegatecall]
+    │   │   ├─ [288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 3000000000000000000 [3e18]
+    │   │   ├─ emit Rebased(newIndex: 3000000000000000000 [3e18])
+    │   │   └─ ← [Return] 3000000000000000000 [3e18]
+    │   └─ ← [Return] 3000000000000000000 [3e18]
+    └─ ← [Return]
+
+[PASS] test_onlyCoreCanMintBurn() (gas: 102178)
+Traces:
+  [102178] Owner::test_onlyCoreCanMintBurn()
+    ├─ [0] VM::expectRevert(custom error 0xc31eb0e0: e2aae06b00000000000000000000000000000000000000000000000000000000)
+    │   └─ ← [Return]
+    ├─ [7521] ERC1967Proxy::fallback(Alice: [0x00000000000000000000000000000000000A11cE], 1000000000000000000 [1e18])
+    │   ├─ [2698] AquaMON::mintShares(Alice: [0x00000000000000000000000000000000000A11cE], 1000000000000000000 [1e18]) [delegatecall]
+    │   │   └─ ← [Revert] NotCore()
+    │   └─ ← [Revert] NotCore()
+    ├─ [0] VM::expectRevert(custom error 0xc31eb0e0: e2aae06b00000000000000000000000000000000000000000000000000000000)
+    │   └─ ← [Return]
+    ├─ [7810] ERC1967Proxy::fallback(Alice: [0x00000000000000000000000000000000000A11cE], 1000000000000000000 [1e18])
+    │   ├─ [2987] AquaMON::burnShares(Alice: [0x00000000000000000000000000000000000A11cE], 1000000000000000000 [1e18]) [delegatecall]
+    │   │   └─ ← [Revert] NotCore()
+    │   └─ ← [Revert] NotCore()
+    ├─ [0] VM::prank(Pool: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
+    │   └─ ← [Return]
+    ├─ [58023] ERC1967Proxy::fallback(Alice: [0x00000000000000000000000000000000000A11cE], 2000000000000000000 [2e18])
+    │   ├─ [53204] AquaMON::mintShares(Alice: [0x00000000000000000000000000000000000A11cE], 2000000000000000000 [2e18]) [delegatecall]
+    │   │   ├─ emit MintShares(to: Alice: [0x00000000000000000000000000000000000A11cE], shares: 2000000000000000000 [2e18])
+    │   │   ├─ [2288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: Alice: [0x00000000000000000000000000000000000A11cE], value: 2000000000000000000 [2e18])
+    │   │   └─ ← [Return]
+    │   └─ ← [Return]
+    ├─ [1367] ERC1967Proxy::fallback(Alice: [0x00000000000000000000000000000000000A11cE]) [staticcall]
+    │   ├─ [1048] AquaMON::sharesOf(Alice: [0x00000000000000000000000000000000000A11cE]) [delegatecall]
+    │   │   └─ ← [Return] 2000000000000000000 [2e18]
+    │   └─ ← [Return] 2000000000000000000 [2e18]
+    ├─ [794] ERC1967Proxy::fallback() [staticcall]
+    │   ├─ [478] AquaMON::totalShares() [delegatecall]
+    │   │   └─ ← [Return] 2000000000000000000 [2e18]
+    │   └─ ← [Return] 2000000000000000000 [2e18]
+    ├─ [0] VM::prank(Pool: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
+    │   └─ ← [Return]
+    ├─ [6175] ERC1967Proxy::fallback(Alice: [0x00000000000000000000000000000000000A11cE], 1000000000000000000 [1e18])
+    │   ├─ [5856] AquaMON::burnShares(Alice: [0x00000000000000000000000000000000000A11cE], 1000000000000000000 [1e18]) [delegatecall]
+    │   │   ├─ emit BurnShares(from: Alice: [0x00000000000000000000000000000000000A11cE], shares: 1000000000000000000 [1e18])
+    │   │   ├─ [288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   │   ├─ emit Transfer(from: Alice: [0x00000000000000000000000000000000000A11cE], to: 0x0000000000000000000000000000000000000000, value: 1000000000000000000 [1e18])
+    │   │   └─ ← [Return]
+    │   └─ ← [Return]
+    ├─ [1367] ERC1967Proxy::fallback(Alice: [0x00000000000000000000000000000000000A11cE]) [staticcall]
+    │   ├─ [1048] AquaMON::sharesOf(Alice: [0x00000000000000000000000000000000000A11cE]) [delegatecall]
+    │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   └─ ← [Return] 1000000000000000000 [1e18]
+    ├─ [794] ERC1967Proxy::fallback() [staticcall]
+    │   ├─ [478] AquaMON::totalShares() [delegatecall]
+    │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   └─ ← [Return] 1000000000000000000 [1e18]
+    └─ ← [Return]
+
+[PASS] test_permit_replay_and_expiry() (gas: 146035)
+Traces:
+  [146035] Owner::test_permit_replay_and_expiry()
+    ├─ [0] VM::addr(<pk>) [staticcall]
+    │   └─ ← [Return] 0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7
+    ├─ [0] VM::prank(Pool: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
+    │   └─ ← [Return]
+    ├─ [58023] ERC1967Proxy::fallback(0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7, 1000000000000000000 [1e18])
+    │   ├─ [53204] AquaMON::mintShares(0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7, 1000000000000000000 [1e18]) [delegatecall]
+    │   │   ├─ emit MintShares(to: 0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7, shares: 1000000000000000000 [1e18])
+    │   │   ├─ [2288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: 0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7, value: 1000000000000000000 [1e18])
+    │   │   └─ ← [Return]
+    │   └─ ← [Return]
+    ├─ [3125] ERC1967Proxy::fallback(0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7) [staticcall]
+    │   ├─ [2806] AquaMON::nonces(0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7) [delegatecall]
+    │   │   └─ ← [Return] 0
+    │   └─ ← [Return] 0
+    ├─ [4922] ERC1967Proxy::fallback() [staticcall]
+    │   ├─ [4606] AquaMON::DOMAIN_SEPARATOR() [delegatecall]
+    │   │   └─ ← [Return] 0x8d0ae63e3538732af824d5ceb74d4e6ecece406853e1846cc9349ef8e3ce489f
+    │   └─ ← [Return] 0x8d0ae63e3538732af824d5ceb74d4e6ecece406853e1846cc9349ef8e3ce489f
+    ├─ [0] VM::sign("<pk>", 0x89a7429d7970abc03336f15dab260bae93056b0893b60df44c5b2a93998e0820) [staticcall]
+    │   └─ ← [Return] 28, 0x346fe3989ac42907536f6638449697b72eaa03ebb482b9971af3e93c82bab2ef, 0x7b77cd154aa34a974da6ac87fe99105b431c1e3430488dcac726ca8d0c439c54
+    ├─ [49888] ERC1967Proxy::fallback(0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7, Bob: [0x0000000000000000000000000000000000000B0b], 1000000000000000000 [1e18], 3601, 28, 0x346fe3989ac42907536f6638449697b72eaa03ebb482b9971af3e93c82bab2ef, 0x7b77cd154aa34a974da6ac87fe99105b431c1e3430488dcac726ca8d0c439c54)
+    │   ├─ [49539] AquaMON::permit(0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7, Bob: [0x0000000000000000000000000000000000000B0b], 1000000000000000000 [1e18], 3601, 28, 0x346fe3989ac42907536f6638449697b72eaa03ebb482b9971af3e93c82bab2ef, 0x7b77cd154aa34a974da6ac87fe99105b431c1e3430488dcac726ca8d0c439c54) [delegatecall]
+    │   │   ├─ [3000] PRECOMPILES::ecrecover(0x89a7429d7970abc03336f15dab260bae93056b0893b60df44c5b2a93998e0820, 28, 23717958961151656291585495456343330553647740064141439623066985468012734886639, 55846150608470649338224850788653015393617385012439331107338911797367590329428) [staticcall]
+    │   │   │   └─ ← [Return] 0x000000000000000000000000e05fcc23807536bee418f142d19fa0d21bb0cff7
+    │   │   ├─ emit Approval(owner: 0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7, spender: Bob: [0x0000000000000000000000000000000000000B0b], value: 1000000000000000000 [1e18])
+    │   │   └─ ← [Return]
+    │   └─ ← [Return]
+    ├─ [0] VM::expectRevert(custom error 0xf28dceb3:  invalid permit)
+    │   └─ ← [Return]
+    ├─ [5791] ERC1967Proxy::fallback(0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7, Bob: [0x0000000000000000000000000000000000000B0b], 1000000000000000000 [1e18], 3601, 28, 0x346fe3989ac42907536f6638449697b72eaa03ebb482b9971af3e93c82bab2ef, 0x7b77cd154aa34a974da6ac87fe99105b431c1e3430488dcac726ca8d0c439c54)
+    │   ├─ [5429] AquaMON::permit(0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7, Bob: [0x0000000000000000000000000000000000000B0b], 1000000000000000000 [1e18], 3601, 28, 0x346fe3989ac42907536f6638449697b72eaa03ebb482b9971af3e93c82bab2ef, 0x7b77cd154aa34a974da6ac87fe99105b431c1e3430488dcac726ca8d0c439c54) [delegatecall]
+    │   │   ├─ [3000] PRECOMPILES::ecrecover(0x71d959948ea80f7ace7111a2b74c256ba09b41815500dd23915881422dd3babe, 28, 23717958961151656291585495456343330553647740064141439623066985468012734886639, 55846150608470649338224850788653015393617385012439331107338911797367590329428) [staticcall]
+    │   │   │   └─ ← [Return] 0x0000000000000000000000007f088be675316703fa91ac3d3bedc5561a70b3c0
+    │   │   └─ ← [Revert] invalid permit
+    │   └─ ← [Revert] invalid permit
+    ├─ [1125] ERC1967Proxy::fallback(0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7) [staticcall]
+    │   ├─ [806] AquaMON::nonces(0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7) [delegatecall]
+    │   │   └─ ← [Return] 1
+    │   └─ ← [Return] 1
+    ├─ [922] ERC1967Proxy::fallback() [staticcall]
+    │   ├─ [606] AquaMON::DOMAIN_SEPARATOR() [delegatecall]
+    │   │   └─ ← [Return] 0x8d0ae63e3538732af824d5ceb74d4e6ecece406853e1846cc9349ef8e3ce489f
+    │   └─ ← [Return] 0x8d0ae63e3538732af824d5ceb74d4e6ecece406853e1846cc9349ef8e3ce489f
+    ├─ [0] VM::sign("<pk>", 0xc5737cf10e490719629da2abf9484c189285aab3421e2f5f6fb31207557677ad) [staticcall]
+    │   └─ ← [Return] 27, 0x7cd986ad9fba58812d55b11b4af95a372e16bbced28cbcbc4e0b5f758e311343, 0x719d71a6b1d10c2263bc1e55ddff3538c752dead6705256b246e3815527d434c
+    ├─ [0] VM::expectRevert(custom error 0xc31eb0e0: 1a15a3cc00000000000000000000000000000000000000000000000000000000)
+    │   └─ ← [Return]
+    ├─ [1287] ERC1967Proxy::fallback(0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7, Bob: [0x0000000000000000000000000000000000000B0b], 1000000000000000000 [1e18], 0, 27, 0x7cd986ad9fba58812d55b11b4af95a372e16bbced28cbcbc4e0b5f758e311343, 0x719d71a6b1d10c2263bc1e55ddff3538c752dead6705256b246e3815527d434c)
+    │   ├─ [934] AquaMON::permit(0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7, Bob: [0x0000000000000000000000000000000000000B0b], 1000000000000000000 [1e18], 0, 27, 0x7cd986ad9fba58812d55b11b4af95a372e16bbced28cbcbc4e0b5f758e311343, 0x719d71a6b1d10c2263bc1e55ddff3538c752dead6705256b246e3815527d434c) [delegatecall]
+    │   │   └─ ← [Revert] PermitExpired()
+    │   └─ ← [Revert] PermitExpired()
+    └─ ← [Return]
+
+[PASS] test_permit_valid() (gas: 166373)
+Traces:
+  [166373] Owner::test_permit_valid()
+    ├─ [0] VM::prank(Pool: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
+    │   └─ ← [Return]
+    ├─ [58023] ERC1967Proxy::fallback(Alice: [0x00000000000000000000000000000000000A11cE], 2000000000000000000 [2e18])
+    │   ├─ [53204] AquaMON::mintShares(Alice: [0x00000000000000000000000000000000000A11cE], 2000000000000000000 [2e18]) [delegatecall]
+    │   │   ├─ emit MintShares(to: Alice: [0x00000000000000000000000000000000000A11cE], shares: 2000000000000000000 [2e18])
+    │   │   ├─ [2288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: Alice: [0x00000000000000000000000000000000000A11cE], value: 2000000000000000000 [2e18])
+    │   │   └─ ← [Return]
+    │   └─ ← [Return]
+    ├─ [0] VM::addr(<pk>) [staticcall]
+    │   └─ ← [Return] 0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7
+    ├─ [0] VM::prank(Pool: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
+    │   └─ ← [Return]
+    ├─ [27623] ERC1967Proxy::fallback(0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7, 1000000000000000000 [1e18])
+    │   ├─ [27304] AquaMON::mintShares(0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7, 1000000000000000000 [1e18]) [delegatecall]
+    │   │   ├─ emit MintShares(to: 0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7, shares: 1000000000000000000 [1e18])
+    │   │   ├─ [288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: 0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7, value: 1000000000000000000 [1e18])
+    │   │   └─ ← [Return]
+    │   └─ ← [Return]
+    ├─ [3125] ERC1967Proxy::fallback(0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7) [staticcall]
+    │   ├─ [2806] AquaMON::nonces(0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7) [delegatecall]
+    │   │   └─ ← [Return] 0
+    │   └─ ← [Return] 0
+    ├─ [4922] ERC1967Proxy::fallback() [staticcall]
+    │   ├─ [4606] AquaMON::DOMAIN_SEPARATOR() [delegatecall]
+    │   │   └─ ← [Return] 0x8d0ae63e3538732af824d5ceb74d4e6ecece406853e1846cc9349ef8e3ce489f
+    │   └─ ← [Return] 0x8d0ae63e3538732af824d5ceb74d4e6ecece406853e1846cc9349ef8e3ce489f
+    ├─ [0] VM::sign("<pk>", 0x89a7429d7970abc03336f15dab260bae93056b0893b60df44c5b2a93998e0820) [staticcall]
+    │   └─ ← [Return] 28, 0x346fe3989ac42907536f6638449697b72eaa03ebb482b9971af3e93c82bab2ef, 0x7b77cd154aa34a974da6ac87fe99105b431c1e3430488dcac726ca8d0c439c54
+    ├─ [49888] ERC1967Proxy::fallback(0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7, Bob: [0x0000000000000000000000000000000000000B0b], 1000000000000000000 [1e18], 3601, 28, 0x346fe3989ac42907536f6638449697b72eaa03ebb482b9971af3e93c82bab2ef, 0x7b77cd154aa34a974da6ac87fe99105b431c1e3430488dcac726ca8d0c439c54)
+    │   ├─ [49539] AquaMON::permit(0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7, Bob: [0x0000000000000000000000000000000000000B0b], 1000000000000000000 [1e18], 3601, 28, 0x346fe3989ac42907536f6638449697b72eaa03ebb482b9971af3e93c82bab2ef, 0x7b77cd154aa34a974da6ac87fe99105b431c1e3430488dcac726ca8d0c439c54) [delegatecall]
+    │   │   ├─ [3000] PRECOMPILES::ecrecover(0x89a7429d7970abc03336f15dab260bae93056b0893b60df44c5b2a93998e0820, 28, 23717958961151656291585495456343330553647740064141439623066985468012734886639, 55846150608470649338224850788653015393617385012439331107338911797367590329428) [staticcall]
+    │   │   │   └─ ← [Return] 0x000000000000000000000000e05fcc23807536bee418f142d19fa0d21bb0cff7
+    │   │   ├─ emit Approval(owner: 0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7, spender: Bob: [0x0000000000000000000000000000000000000B0b], value: 1000000000000000000 [1e18])
+    │   │   └─ ← [Return]
+    │   └─ ← [Return]
+    ├─ [1125] ERC1967Proxy::fallback(0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7) [staticcall]
+    │   ├─ [806] AquaMON::nonces(0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7) [delegatecall]
+    │   │   └─ ← [Return] 1
+    │   └─ ← [Return] 1
+    ├─ [1446] ERC1967Proxy::fallback(0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7, Bob: [0x0000000000000000000000000000000000000B0b]) [staticcall]
+    │   ├─ [1124] AquaMON::allowance(0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7, Bob: [0x0000000000000000000000000000000000000B0b]) [delegatecall]
+    │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   └─ ← [Return] 1000000000000000000 [1e18]
+    └─ ← [Return]
+
+[PASS] test_setPool_reverts_twice() (gas: 18142)
+Traces:
+  [18142] Owner::test_setPool_reverts_twice()
+    ├─ [0] VM::expectRevert(custom error 0xf28dceb3:  pool already set)
+    │   └─ ← [Return]
+    ├─ [9742] ERC1967Proxy::fallback(0x0000000000000000000000000000000000000aBc)
+    │   ├─ [4910] AquaMON::setPool(0x0000000000000000000000000000000000000aBc) [delegatecall]
+    │   │   └─ ← [Revert] pool already set
+    │   └─ ← [Revert] pool already set
+    └─ ← [Return]
+
+[PASS] test_setPool_zeroAddress_reverts() (gas: 1791241)
+Traces:
+  [1791241] Owner::test_setPool_zeroAddress_reverts()
+    ├─ [1482474] → new AquaMON@0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9
+    │   ├─ emit Initialized(version: 18446744073709551615 [1.844e19])
+    │   └─ ← [Return] 7288 bytes of code
+    ├─ [235011] → new ERC1967Proxy@0xc7183455a4C133Ae270771860664b6B7ec320bB1
+    │   ├─ emit Upgraded(implementation: AquaMON: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9])
+    │   ├─ [183203] AquaMON::initialize("AquaMON", "stMON", Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496]) [delegatecall]
+    │   │   ├─ emit OwnershipTransferred(previousOwner: 0x0000000000000000000000000000000000000000, newOwner: Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496])
+    │   │   ├─ emit Initialized(version: 1)
+    │   │   └─ ← [Return]
+    │   └─ ← [Return] 133 bytes of code
+    ├─ [0] VM::expectRevert(custom error 0xc31eb0e0: d92e233d00000000000000000000000000000000000000000000000000000000)
+    │   └─ ← [Return]
+    ├─ [1042] ERC1967Proxy::fallback(0x0000000000000000000000000000000000000000)
+    │   ├─ [722] AquaMON::setPool(0x0000000000000000000000000000000000000000) [delegatecall]
+    │   │   └─ ← [Revert] ZeroAddress()
+    │   └─ ← [Revert] ZeroAddress()
+    └─ ← [Return]
+
+[PASS] test_totalSupplyAndBalance_scaleWithIndex() (gas: 85397)
+Traces:
+  [85397] Owner::test_totalSupplyAndBalance_scaleWithIndex()
+    ├─ [0] VM::prank(Pool: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
+    │   └─ ← [Return]
+    ├─ [58023] ERC1967Proxy::fallback(Alice: [0x00000000000000000000000000000000000A11cE], 1000000000000000000 [1e18])
+    │   ├─ [53204] AquaMON::mintShares(Alice: [0x00000000000000000000000000000000000A11cE], 1000000000000000000 [1e18]) [delegatecall]
+    │   │   ├─ emit MintShares(to: Alice: [0x00000000000000000000000000000000000A11cE], shares: 1000000000000000000 [1e18])
+    │   │   ├─ [2288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: Alice: [0x00000000000000000000000000000000000A11cE], value: 1000000000000000000 [1e18])
+    │   │   └─ ← [Return]
+    │   └─ ← [Return]
+    ├─ [1986] ERC1967Proxy::fallback(Alice: [0x00000000000000000000000000000000000A11cE]) [staticcall]
+    │   ├─ [1667] AquaMON::balanceOf(Alice: [0x00000000000000000000000000000000000A11cE]) [delegatecall]
+    │   │   ├─ [288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   └─ ← [Return] 1000000000000000000 [1e18]
+    ├─ [1602] ERC1967Proxy::fallback() [staticcall]
+    │   ├─ [1286] AquaMON::totalSupply() [delegatecall]
+    │   │   ├─ [288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   └─ ← [Return] 1000000000000000000 [1e18]
+    ├─ [3090] Pool::setIndex(2000000000000000000 [2e18])
+    │   └─ ← [Return]
+    ├─ [1986] ERC1967Proxy::fallback(Alice: [0x00000000000000000000000000000000000A11cE]) [staticcall]
+    │   ├─ [1667] AquaMON::balanceOf(Alice: [0x00000000000000000000000000000000000A11cE]) [delegatecall]
+    │   │   ├─ [288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 2000000000000000000 [2e18]
+    │   │   └─ ← [Return] 2000000000000000000 [2e18]
+    │   └─ ← [Return] 2000000000000000000 [2e18]
+    ├─ [1602] ERC1967Proxy::fallback() [staticcall]
+    │   ├─ [1286] AquaMON::totalSupply() [delegatecall]
+    │   │   ├─ [288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 2000000000000000000 [2e18]
+    │   │   └─ ← [Return] 2000000000000000000 [2e18]
+    │   └─ ← [Return] 2000000000000000000 [2e18]
+    └─ ← [Return]
+
+[PASS] test_transferAndTransferFrom_withRebase() (gas: 128984)
+Traces:
+  [148884] Owner::test_transferAndTransferFrom_withRebase()
+    ├─ [0] VM::prank(Pool: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
+    │   └─ ← [Return]
+    ├─ [58023] ERC1967Proxy::fallback(Alice: [0x00000000000000000000000000000000000A11cE], 2000000000000000000 [2e18])
+    │   ├─ [53204] AquaMON::mintShares(Alice: [0x00000000000000000000000000000000000A11cE], 2000000000000000000 [2e18]) [delegatecall]
+    │   │   ├─ emit MintShares(to: Alice: [0x00000000000000000000000000000000000A11cE], shares: 2000000000000000000 [2e18])
+    │   │   ├─ [2288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: Alice: [0x00000000000000000000000000000000000A11cE], value: 2000000000000000000 [2e18])
+    │   │   └─ ← [Return]
+    │   └─ ← [Return]
+    ├─ [3090] Pool::setIndex(2000000000000000000 [2e18])
+    │   └─ ← [Return]
+    ├─ [0] VM::prank(Alice: [0x00000000000000000000000000000000000A11cE])
+    │   └─ ← [Return]
+    ├─ [24675] ERC1967Proxy::fallback(Bob: [0x0000000000000000000000000000000000000B0b], 4000000000000000000 [4e18])
+    │   ├─ [24353] AquaMON::approve(Bob: [0x0000000000000000000000000000000000000B0b], 4000000000000000000 [4e18]) [delegatecall]
+    │   │   ├─ emit Approval(owner: Alice: [0x00000000000000000000000000000000000A11cE], spender: Bob: [0x0000000000000000000000000000000000000B0b], value: 4000000000000000000 [4e18])
+    │   │   └─ ← [Return] true
+    │   └─ ← [Return] true
+    ├─ [0] VM::prank(Bob: [0x0000000000000000000000000000000000000B0b])
+    │   └─ ← [Return]
+    ├─ [28888] ERC1967Proxy::fallback(Alice: [0x00000000000000000000000000000000000A11cE], Bob: [0x0000000000000000000000000000000000000B0b], 2000000000000000000 [2e18])
+    │   ├─ [28560] AquaMON::transferFrom(Alice: [0x00000000000000000000000000000000000A11cE], Bob: [0x0000000000000000000000000000000000000B0b], 2000000000000000000 [2e18]) [delegatecall]
+    │   │   ├─ emit Approval(owner: Alice: [0x00000000000000000000000000000000000A11cE], spender: Bob: [0x0000000000000000000000000000000000000B0b], value: 2000000000000000000 [2e18])
+    │   │   ├─ [288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 2000000000000000000 [2e18]
+    │   │   ├─ emit Transfer(from: Alice: [0x00000000000000000000000000000000000A11cE], to: Bob: [0x0000000000000000000000000000000000000B0b], value: 2000000000000000000 [2e18])
+    │   │   └─ ← [Return] true
+    │   └─ ← [Return] true
+    ├─ [1986] ERC1967Proxy::fallback(Bob: [0x0000000000000000000000000000000000000B0b]) [staticcall]
+    │   ├─ [1667] AquaMON::balanceOf(Bob: [0x0000000000000000000000000000000000000B0b]) [delegatecall]
+    │   │   ├─ [288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 2000000000000000000 [2e18]
+    │   │   └─ ← [Return] 2000000000000000000 [2e18]
+    │   └─ ← [Return] 2000000000000000000 [2e18]
+    ├─ [1367] ERC1967Proxy::fallback(Bob: [0x0000000000000000000000000000000000000B0b]) [staticcall]
+    │   ├─ [1048] AquaMON::sharesOf(Bob: [0x0000000000000000000000000000000000000B0b]) [delegatecall]
+    │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   └─ ← [Return] 1000000000000000000 [1e18]
+    ├─ [0] VM::prank(Bob: [0x0000000000000000000000000000000000000B0b])
+    │   └─ ← [Return]
+    ├─ [4651] ERC1967Proxy::fallback(Alice: [0x00000000000000000000000000000000000A11cE], 2000000000000000000 [2e18])
+    │   ├─ [4329] AquaMON::transfer(Alice: [0x00000000000000000000000000000000000A11cE], 2000000000000000000 [2e18]) [delegatecall]
+    │   │   ├─ [288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 2000000000000000000 [2e18]
+    │   │   ├─ emit Transfer(from: Bob: [0x0000000000000000000000000000000000000B0b], to: Alice: [0x00000000000000000000000000000000000A11cE], value: 2000000000000000000 [2e18])
+    │   │   └─ ← [Return] true
+    │   └─ ← [Return] true
+    ├─ [1986] ERC1967Proxy::fallback(Alice: [0x00000000000000000000000000000000000A11cE]) [staticcall]
+    │   ├─ [1667] AquaMON::balanceOf(Alice: [0x00000000000000000000000000000000000A11cE]) [delegatecall]
+    │   │   ├─ [288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 2000000000000000000 [2e18]
+    │   │   └─ ← [Return] 4000000000000000000 [4e18]
+    │   └─ ← [Return] 4000000000000000000 [4e18]
+    ├─ [1367] ERC1967Proxy::fallback(Alice: [0x00000000000000000000000000000000000A11cE]) [staticcall]
+    │   ├─ [1048] AquaMON::sharesOf(Alice: [0x00000000000000000000000000000000000A11cE]) [delegatecall]
+    │   │   └─ ← [Return] 2000000000000000000 [2e18]
+    │   └─ ← [Return] 2000000000000000000 [2e18]
+    └─ ← [Return]
+
+Suite result: ok. 13 passed; 0 failed; 0 skipped; finished in 1.63ms (2.33ms CPU time)
+
+Ran 1 test suite in 9.48ms (1.63ms CPU time): 13 tests passed, 0 failed, 0 skipped (13 total tests)

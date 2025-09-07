@@ -1,0 +1,377 @@
+No files changed, compilation skipped
+
+Ran 10 tests for test/ArcMON.t.sol:ArcMONTest
+[PASS] test_ERC20Votes_delegation() (gas: 245015)
+Traces:
+  [267715] Owner::test_ERC20Votes_delegation()
+    ├─ [0] VM::prank(Alice: [0x00000000000000000000000000000000000A11cE])
+    │   └─ ← [Return]
+    ├─ [24349] AquaMON::approve(ArcMON: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], 2000000000000000000 [2e18])
+    │   ├─ emit Approval(owner: Alice: [0x00000000000000000000000000000000000A11cE], spender: ArcMON: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], value: 2000000000000000000 [2e18])
+    │   └─ ← [Return] true
+    ├─ [0] VM::prank(Alice: [0x00000000000000000000000000000000000A11cE])
+    │   └─ ← [Return]
+    ├─ [150887] ArcMON::fallback(2000000000000000000 [2e18], Alice: [0x00000000000000000000000000000000000A11cE])
+    │   ├─ [146065] ArcMON::wrap(2000000000000000000 [2e18], Alice: [0x00000000000000000000000000000000000A11cE]) [delegatecall]
+    │   │   ├─ [2288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   │   ├─ [30244] AquaMON::transferFrom(Alice: [0x00000000000000000000000000000000000A11cE], ArcMON: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], 2000000000000000000 [2e18])
+    │   │   │   ├─ emit Transfer(from: Alice: [0x00000000000000000000000000000000000A11cE], to: ArcMON: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], value: 2000000000000000000 [2e18])
+    │   │   │   └─ ← [Return] true
+    │   │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: Alice: [0x00000000000000000000000000000000000A11cE], value: 2000000000000000000 [2e18])
+    │   │   ├─ emit Wrapped(user: Alice: [0x00000000000000000000000000000000000A11cE], aquaIn: 2000000000000000000 [2e18], arcOut: 2000000000000000000 [2e18])
+    │   │   └─ ← [Return] 2000000000000000000 [2e18]
+    │   └─ ← [Return] 2000000000000000000 [2e18]
+    ├─ [0] VM::prank(Alice: [0x00000000000000000000000000000000000A11cE])
+    │   └─ ← [Return]
+    ├─ [70658] ArcMON::fallback(Bob: [0x0000000000000000000000000000000000000B0b])
+    │   ├─ [70342] ArcMON::delegate(Bob: [0x0000000000000000000000000000000000000B0b]) [delegatecall]
+    │   │   ├─ emit DelegateChanged(delegator: Alice: [0x00000000000000000000000000000000000A11cE], fromDelegate: 0x0000000000000000000000000000000000000000, toDelegate: Bob: [0x0000000000000000000000000000000000000B0b])
+    │   │   ├─ emit DelegateVotesChanged(delegate: Bob: [0x0000000000000000000000000000000000000B0b], previousVotes: 0, newVotes: 2000000000000000000 [2e18])
+    │   │   └─ ← [Stop]
+    │   └─ ← [Return]
+    ├─ [1709] ArcMON::fallback(Bob: [0x0000000000000000000000000000000000000B0b]) [staticcall]
+    │   ├─ [1390] ArcMON::getVotes(Bob: [0x0000000000000000000000000000000000000B0b]) [delegatecall]
+    │   │   └─ ← [Return] 2000000000000000000 [2e18]
+    │   └─ ← [Return] 2000000000000000000 [2e18]
+    └─ ← [Return]
+
+[PASS] test_conversion_functions() (gas: 31698)
+Traces:
+  [31698] Owner::test_conversion_functions()
+    ├─ [13180] ArcMON::fallback(1000000000000000000 [1e18]) [staticcall]
+    │   ├─ [8361] ArcMON::convertToArc(1000000000000000000 [1e18]) [delegatecall]
+    │   │   ├─ [2288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   └─ ← [Return] 1000000000000000000 [1e18]
+    ├─ [1826] ArcMON::fallback(1000000000000000000 [1e18]) [staticcall]
+    │   ├─ [1507] ArcMON::convertToAqua(1000000000000000000 [1e18]) [delegatecall]
+    │   │   ├─ [288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   └─ ← [Return] 1000000000000000000 [1e18]
+    ├─ [3090] Pool::setIndex(2000000000000000000 [2e18])
+    │   └─ ← [Return]
+    ├─ [2180] ArcMON::fallback(2000000000000000000 [2e18]) [staticcall]
+    │   ├─ [1861] ArcMON::convertToArc(2000000000000000000 [2e18]) [delegatecall]
+    │   │   ├─ [288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 2000000000000000000 [2e18]
+    │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   └─ ← [Return] 1000000000000000000 [1e18]
+    ├─ [1826] ArcMON::fallback(1000000000000000000 [1e18]) [staticcall]
+    │   ├─ [1507] ArcMON::convertToAqua(1000000000000000000 [1e18]) [delegatecall]
+    │   │   ├─ [288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 2000000000000000000 [2e18]
+    │   │   └─ ← [Return] 2000000000000000000 [2e18]
+    │   └─ ← [Return] 2000000000000000000 [2e18]
+    └─ ← [Return]
+
+[PASS] test_initializer_idempotence() (gas: 24414)
+Traces:
+  [24414] Owner::test_initializer_idempotence()
+    ├─ [0] VM::expectRevert(custom error 0xf4844814)
+    │   └─ ← [Return]
+    ├─ [9391] ArcMON::fallback("again", "AGAIN", Pool: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], AquaMON: [0x2e234DAe75C793f67A35089C9d99245E1C58470b], Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496])
+    │   ├─ [4526] ArcMON::initialize("again", "AGAIN", Pool: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], AquaMON: [0x2e234DAe75C793f67A35089C9d99245E1C58470b], Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496]) [delegatecall]
+    │   │   └─ ← [Revert] InvalidInitialization()
+    │   └─ ← [Revert] InvalidInitialization()
+    └─ ← [Return]
+
+[PASS] test_metadata_and_setup() (gas: 35630)
+Traces:
+  [35630] Owner::test_metadata_and_setup()
+    ├─ [7820] ArcMON::fallback() [staticcall]
+    │   ├─ [2998] ArcMON::name() [delegatecall]
+    │   │   └─ ← [Return] "ArcMON"
+    │   └─ ← [Return] "ArcMON"
+    ├─ [0] VM::assertEq("ArcMON", "ArcMON") [staticcall]
+    │   └─ ← [Return]
+    ├─ [3980] ArcMON::fallback() [staticcall]
+    │   ├─ [3658] ArcMON::symbol() [delegatecall]
+    │   │   └─ ← [Return] "wstMON"
+    │   └─ ← [Return] "wstMON"
+    ├─ [0] VM::assertEq("wstMON", "wstMON") [staticcall]
+    │   └─ ← [Return]
+    ├─ [629] ArcMON::fallback() [staticcall]
+    │   ├─ [313] ArcMON::decimals() [delegatecall]
+    │   │   └─ ← [Return] 18
+    │   └─ ← [Return] 18
+    ├─ [2668] ArcMON::fallback() [staticcall]
+    │   ├─ [2352] ArcMON::pool() [delegatecall]
+    │   │   └─ ← [Return] Pool: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f]
+    │   └─ ← [Return] Pool: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f]
+    ├─ [3523] ArcMON::fallback() [staticcall]
+    │   ├─ [3207] ArcMON::aqua() [delegatecall]
+    │   │   └─ ← [Return] AquaMON: [0x2e234DAe75C793f67A35089C9d99245E1C58470b]
+    │   └─ ← [Return] AquaMON: [0x2e234DAe75C793f67A35089C9d99245E1C58470b]
+    └─ ← [Return]
+
+[PASS] test_onlyOwner_admin_functions() (gas: 58085)
+Traces:
+  [77872] Owner::test_onlyOwner_admin_functions()
+    ├─ [0] VM::prank(Alice: [0x00000000000000000000000000000000000A11cE])
+    │   └─ ← [Return]
+    ├─ [0] VM::expectRevert(custom error 0xf4844814)
+    │   └─ ← [Return]
+    ├─ [8000] ArcMON::fallback(true)
+    │   ├─ [3177] ArcMON::setPause(true) [delegatecall]
+    │   │   └─ ← [Revert] OwnableUnauthorizedAccount(0x00000000000000000000000000000000000A11cE)
+    │   └─ ← [Revert] OwnableUnauthorizedAccount(0x00000000000000000000000000000000000A11cE)
+    ├─ [0] VM::prank(Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496])
+    │   └─ ← [Return]
+    ├─ [31335] ArcMON::fallback(true)
+    │   ├─ [26519] ArcMON::setPause(true) [delegatecall]
+    │   │   ├─ emit Paused(account: Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496])
+    │   │   └─ ← [Stop]
+    │   └─ ← [Return]
+    ├─ [997] ArcMON::fallback() [staticcall]
+    │   ├─ [681] ArcMON::paused() [delegatecall]
+    │   │   └─ ← [Return] true
+    │   └─ ← [Return] true
+    ├─ [0] VM::prank(Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496])
+    │   └─ ← [Return]
+    ├─ [2776] ArcMON::fallback(false)
+    │   ├─ [2460] ArcMON::setPause(false) [delegatecall]
+    │   │   ├─ emit Unpaused(account: Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496])
+    │   │   └─ ← [Stop]
+    │   └─ ← [Return]
+    ├─ [997] ArcMON::fallback() [staticcall]
+    │   ├─ [681] ArcMON::paused() [delegatecall]
+    │   │   └─ ← [Return] false
+    │   └─ ← [Return] false
+    ├─ [0] VM::prank(Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496])
+    │   └─ ← [Return]
+    ├─ [6038] ArcMON::fallback(0x000000000000000000000000000000000000bEEF)
+    │   ├─ [5722] ArcMON::setPool(0x000000000000000000000000000000000000bEEF) [delegatecall]
+    │   │   └─ ← [Return]
+    │   └─ ← [Return]
+    ├─ [668] ArcMON::fallback() [staticcall]
+    │   ├─ [352] ArcMON::pool() [delegatecall]
+    │   │   └─ ← [Return] 0x000000000000000000000000000000000000bEEF
+    │   └─ ← [Return] 0x000000000000000000000000000000000000bEEF
+    ├─ [0] VM::prank(Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496])
+    │   └─ ← [Return]
+    ├─ [6302] ArcMON::fallback(0x000000000000000000000000000000000000ABcD)
+    │   ├─ [5986] ArcMON::setAqua(0x000000000000000000000000000000000000ABcD) [delegatecall]
+    │   │   └─ ← [Return]
+    │   └─ ← [Return]
+    ├─ [1523] ArcMON::fallback() [staticcall]
+    │   ├─ [1207] ArcMON::aqua() [delegatecall]
+    │   │   └─ ← [Return] 0x000000000000000000000000000000000000ABcD
+    │   └─ ← [Return] 0x000000000000000000000000000000000000ABcD
+    └─ ← [Return]
+
+[PASS] test_onlyOwner_transferOwnership() (gas: 38875)
+Traces:
+  [38875] Owner::test_onlyOwner_transferOwnership()
+    ├─ [0] VM::prank(Alice: [0x00000000000000000000000000000000000A11cE])
+    │   └─ ← [Return]
+    ├─ [0] VM::expectRevert(custom error 0xf4844814)
+    │   └─ ← [Return]
+    ├─ [8174] ArcMON::fallback(Bob: [0x0000000000000000000000000000000000000B0b])
+    │   ├─ [3351] ArcMON::transferOwnership(Bob: [0x0000000000000000000000000000000000000B0b]) [delegatecall]
+    │   │   └─ ← [Revert] OwnableUnauthorizedAccount(0x00000000000000000000000000000000000A11cE)
+    │   └─ ← [Revert] OwnableUnauthorizedAccount(0x00000000000000000000000000000000000A11cE)
+    ├─ [0] VM::prank(Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496])
+    │   └─ ← [Return]
+    ├─ [12779] ArcMON::fallback(Bob: [0x0000000000000000000000000000000000000B0b])
+    │   ├─ [7963] ArcMON::transferOwnership(Bob: [0x0000000000000000000000000000000000000B0b]) [delegatecall]
+    │   │   ├─ emit OwnershipTransferred(previousOwner: Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496], newOwner: Bob: [0x0000000000000000000000000000000000000B0b])
+    │   │   └─ ← [Stop]
+    │   └─ ← [Return]
+    ├─ [1229] ArcMON::fallback() [staticcall]
+    │   ├─ [913] ArcMON::owner() [delegatecall]
+    │   │   └─ ← [Return] Bob: [0x0000000000000000000000000000000000000B0b]
+    │   └─ ← [Return] Bob: [0x0000000000000000000000000000000000000B0b]
+    └─ ← [Return]
+
+[PASS] test_pause_block_wrap() (gas: 45872)
+Traces:
+  [45872] Owner::test_pause_block_wrap()
+    ├─ [0] VM::prank(Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496])
+    │   └─ ← [Return]
+    ├─ [31335] ArcMON::fallback(true)
+    │   ├─ [26519] ArcMON::setPause(true) [delegatecall]
+    │   │   ├─ emit Paused(account: Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496])
+    │   │   └─ ← [Stop]
+    │   └─ ← [Return]
+    ├─ [0] VM::expectRevert(custom error 0xf4844814)
+    │   └─ ← [Return]
+    ├─ [0] VM::prank(Alice: [0x00000000000000000000000000000000000A11cE])
+    │   └─ ← [Return]
+    ├─ [803] ArcMON::fallback(1000000000000000000 [1e18], Alice: [0x00000000000000000000000000000000000A11cE])
+    │   ├─ [480] ArcMON::wrap(1000000000000000000 [1e18], Alice: [0x00000000000000000000000000000000000A11cE]) [delegatecall]
+    │   │   └─ ← [Revert] EnforcedPause()
+    │   └─ ← [Revert] EnforcedPause()
+    └─ ← [Return]
+
+[PASS] test_recoverLostTokens_and_blacklist() (gas: 562545)
+Traces:
+  [582445] Owner::test_recoverLostTokens_and_blacklist()
+    ├─ [445340] → new MockERC20@0xc7183455a4C133Ae270771860664b6B7ec320bB1
+    │   └─ ← [Return] 1884 bytes of code
+    ├─ [46504] MockERC20::mint(ArcMON: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], 42)
+    │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: ArcMON: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], value: 42)
+    │   └─ ← [Return]
+    ├─ [2563] MockERC20::balanceOf(Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496]) [staticcall]
+    │   └─ ← [Return] 0
+    ├─ [0] VM::prank(Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496])
+    │   └─ ← [Return]
+    ├─ [33326] ArcMON::fallback(MockERC20: [0xc7183455a4C133Ae270771860664b6B7ec320bB1], Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496], 42)
+    │   ├─ [28501] ArcMON::recoverLostTokens(MockERC20: [0xc7183455a4C133Ae270771860664b6B7ec320bB1], Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496], 42) [delegatecall]
+    │   │   ├─ [22855] MockERC20::transfer(Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496], 42)
+    │   │   │   ├─ emit Transfer(from: ArcMON: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], to: Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496], value: 42)
+    │   │   │   └─ ← [Return] true
+    │   │   └─ ← [Stop]
+    │   └─ ← [Return]
+    ├─ [563] MockERC20::balanceOf(Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496]) [staticcall]
+    │   └─ ← [Return] 42
+    ├─ [0] VM::expectRevert(custom error 0xf28dceb3:  blacklisted)
+    │   └─ ← [Return]
+    ├─ [0] VM::prank(Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496])
+    │   └─ ← [Return]
+    ├─ [1565] ArcMON::fallback(ArcMON: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496], 1)
+    │   ├─ [1227] ArcMON::recoverLostTokens(ArcMON: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496], 1) [delegatecall]
+    │   │   └─ ← [Revert] blacklisted
+    │   └─ ← [Revert] blacklisted
+    ├─ [0] VM::expectRevert(custom error 0xf28dceb3:  blacklisted)
+    │   └─ ← [Return]
+    ├─ [0] VM::prank(Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496])
+    │   └─ ← [Return]
+    ├─ [1540] ArcMON::fallback(AquaMON: [0x2e234DAe75C793f67A35089C9d99245E1C58470b], Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496], 1)
+    │   ├─ [1202] ArcMON::recoverLostTokens(AquaMON: [0x2e234DAe75C793f67A35089C9d99245E1C58470b], Owner: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496], 1) [delegatecall]
+    │   │   └─ ← [Revert] blacklisted
+    │   └─ ← [Revert] blacklisted
+    └─ ← [Return]
+
+[PASS] test_wrapAndUnwrap_multipleUsers() (gas: 239632)
+Traces:
+  [304806] Owner::test_wrapAndUnwrap_multipleUsers()
+    ├─ [0] VM::startPrank(Alice: [0x00000000000000000000000000000000000A11cE])
+    │   └─ ← [Return]
+    ├─ [24349] AquaMON::approve(ArcMON: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], 20000000000000000000 [2e19])
+    │   ├─ emit Approval(owner: Alice: [0x00000000000000000000000000000000000A11cE], spender: ArcMON: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], value: 20000000000000000000 [2e19])
+    │   └─ ← [Return] true
+    ├─ [150887] ArcMON::fallback(20000000000000000000 [2e19], Alice: [0x00000000000000000000000000000000000A11cE])
+    │   ├─ [146065] ArcMON::wrap(20000000000000000000 [2e19], Alice: [0x00000000000000000000000000000000000A11cE]) [delegatecall]
+    │   │   ├─ [2288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   │   ├─ [30244] AquaMON::transferFrom(Alice: [0x00000000000000000000000000000000000A11cE], ArcMON: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], 20000000000000000000 [2e19])
+    │   │   │   ├─ emit Transfer(from: Alice: [0x00000000000000000000000000000000000A11cE], to: ArcMON: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], value: 20000000000000000000 [2e19])
+    │   │   │   └─ ← [Return] true
+    │   │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: Alice: [0x00000000000000000000000000000000000A11cE], value: 20000000000000000000 [2e19])
+    │   │   ├─ emit Wrapped(user: Alice: [0x00000000000000000000000000000000000A11cE], aquaIn: 20000000000000000000 [2e19], arcOut: 20000000000000000000 [2e19])
+    │   │   └─ ← [Return] 20000000000000000000 [2e19]
+    │   └─ ← [Return] 20000000000000000000 [2e19]
+    ├─ [0] VM::stopPrank()
+    │   └─ ← [Return]
+    ├─ [0] VM::startPrank(Bob: [0x0000000000000000000000000000000000000B0b])
+    │   └─ ← [Return]
+    ├─ [24349] AquaMON::approve(ArcMON: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], 15000000000000000000 [1.5e19])
+    │   ├─ emit Approval(owner: Bob: [0x0000000000000000000000000000000000000B0b], spender: ArcMON: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], value: 15000000000000000000 [1.5e19])
+    │   └─ ← [Return] true
+    ├─ [44185] ArcMON::fallback(15000000000000000000 [1.5e19], Bob: [0x0000000000000000000000000000000000000B0b])
+    │   ├─ [43863] ArcMON::wrap(15000000000000000000 [1.5e19], Bob: [0x0000000000000000000000000000000000000B0b]) [delegatecall]
+    │   │   ├─ [288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   │   ├─ [8344] AquaMON::transferFrom(Bob: [0x0000000000000000000000000000000000000B0b], ArcMON: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], 15000000000000000000 [1.5e19])
+    │   │   │   ├─ emit Transfer(from: Bob: [0x0000000000000000000000000000000000000B0b], to: ArcMON: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], value: 15000000000000000000 [1.5e19])
+    │   │   │   └─ ← [Return] true
+    │   │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: Bob: [0x0000000000000000000000000000000000000B0b], value: 15000000000000000000 [1.5e19])
+    │   │   ├─ emit Wrapped(user: Bob: [0x0000000000000000000000000000000000000B0b], aquaIn: 15000000000000000000 [1.5e19], arcOut: 15000000000000000000 [1.5e19])
+    │   │   └─ ← [Return] 15000000000000000000 [1.5e19]
+    │   └─ ← [Return] 15000000000000000000 [1.5e19]
+    ├─ [0] VM::stopPrank()
+    │   └─ ← [Return]
+    ├─ [1215] ArcMON::fallback(Alice: [0x00000000000000000000000000000000000A11cE]) [staticcall]
+    │   ├─ [896] ArcMON::balanceOf(Alice: [0x00000000000000000000000000000000000A11cE]) [delegatecall]
+    │   │   └─ ← [Return] 20000000000000000000 [2e19]
+    │   └─ ← [Return] 20000000000000000000 [2e19]
+    ├─ [1215] ArcMON::fallback(Bob: [0x0000000000000000000000000000000000000B0b]) [staticcall]
+    │   ├─ [896] ArcMON::balanceOf(Bob: [0x0000000000000000000000000000000000000B0b]) [delegatecall]
+    │   │   └─ ← [Return] 15000000000000000000 [1.5e19]
+    │   └─ ← [Return] 15000000000000000000 [1.5e19]
+    ├─ [0] VM::prank(Alice: [0x00000000000000000000000000000000000A11cE])
+    │   └─ ← [Return]
+    ├─ [15295] ArcMON::fallback(20000000000000000000 [2e19], Alice: [0x00000000000000000000000000000000000A11cE])
+    │   ├─ [14973] ArcMON::unwrap(20000000000000000000 [2e19], Alice: [0x00000000000000000000000000000000000A11cE]) [delegatecall]
+    │   │   ├─ [288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   │   ├─ emit Transfer(from: Alice: [0x00000000000000000000000000000000000A11cE], to: 0x0000000000000000000000000000000000000000, value: 20000000000000000000 [2e19])
+    │   │   ├─ [2999] AquaMON::transfer(Alice: [0x00000000000000000000000000000000000A11cE], 20000000000000000000 [2e19])
+    │   │   │   ├─ emit Transfer(from: ArcMON: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], to: Alice: [0x00000000000000000000000000000000000A11cE], value: 20000000000000000000 [2e19])
+    │   │   │   └─ ← [Return] true
+    │   │   ├─ emit Unwrapped(user: Alice: [0x00000000000000000000000000000000000A11cE], arcIn: 20000000000000000000 [2e19], aquaOut: 20000000000000000000 [2e19])
+    │   │   └─ ← [Return] 20000000000000000000 [2e19]
+    │   └─ ← [Return] 20000000000000000000 [2e19]
+    ├─ [1215] ArcMON::fallback(Alice: [0x00000000000000000000000000000000000A11cE]) [staticcall]
+    │   ├─ [896] ArcMON::balanceOf(Alice: [0x00000000000000000000000000000000000A11cE]) [delegatecall]
+    │   │   └─ ← [Return] 0
+    │   └─ ← [Return] 0
+    ├─ [0] VM::prank(Bob: [0x0000000000000000000000000000000000000B0b])
+    │   └─ ← [Return]
+    ├─ [15295] ArcMON::fallback(15000000000000000000 [1.5e19], Bob: [0x0000000000000000000000000000000000000B0b])
+    │   ├─ [14973] ArcMON::unwrap(15000000000000000000 [1.5e19], Bob: [0x0000000000000000000000000000000000000B0b]) [delegatecall]
+    │   │   ├─ [288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   │   ├─ emit Transfer(from: Bob: [0x0000000000000000000000000000000000000B0b], to: 0x0000000000000000000000000000000000000000, value: 15000000000000000000 [1.5e19])
+    │   │   ├─ [2999] AquaMON::transfer(Bob: [0x0000000000000000000000000000000000000B0b], 15000000000000000000 [1.5e19])
+    │   │   │   ├─ emit Transfer(from: ArcMON: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], to: Bob: [0x0000000000000000000000000000000000000B0b], value: 15000000000000000000 [1.5e19])
+    │   │   │   └─ ← [Return] true
+    │   │   ├─ emit Unwrapped(user: Bob: [0x0000000000000000000000000000000000000B0b], arcIn: 15000000000000000000 [1.5e19], aquaOut: 15000000000000000000 [1.5e19])
+    │   │   └─ ← [Return] 15000000000000000000 [1.5e19]
+    │   └─ ← [Return] 15000000000000000000 [1.5e19]
+    ├─ [1215] ArcMON::fallback(Bob: [0x0000000000000000000000000000000000000B0b]) [staticcall]
+    │   ├─ [896] ArcMON::balanceOf(Bob: [0x0000000000000000000000000000000000000B0b]) [delegatecall]
+    │   │   └─ ← [Return] 0
+    │   └─ ← [Return] 0
+    └─ ← [Return]
+
+[PASS] test_wrap_and_unwrap_1to1() (gas: 165119)
+Traces:
+  [211664] Owner::test_wrap_and_unwrap_1to1()
+    ├─ [0] VM::prank(Alice: [0x00000000000000000000000000000000000A11cE])
+    │   └─ ← [Return]
+    ├─ [24349] AquaMON::approve(ArcMON: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], 10000000000000000000 [1e19])
+    │   ├─ emit Approval(owner: Alice: [0x00000000000000000000000000000000000A11cE], spender: ArcMON: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], value: 10000000000000000000 [1e19])
+    │   └─ ← [Return] true
+    ├─ [0] VM::prank(Alice: [0x00000000000000000000000000000000000A11cE])
+    │   └─ ← [Return]
+    ├─ [150887] ArcMON::fallback(10000000000000000000 [1e19], Alice: [0x00000000000000000000000000000000000A11cE])
+    │   ├─ [146065] ArcMON::wrap(10000000000000000000 [1e19], Alice: [0x00000000000000000000000000000000000A11cE]) [delegatecall]
+    │   │   ├─ [2288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   │   ├─ [30244] AquaMON::transferFrom(Alice: [0x00000000000000000000000000000000000A11cE], ArcMON: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], 10000000000000000000 [1e19])
+    │   │   │   ├─ emit Transfer(from: Alice: [0x00000000000000000000000000000000000A11cE], to: ArcMON: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], value: 10000000000000000000 [1e19])
+    │   │   │   └─ ← [Return] true
+    │   │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: Alice: [0x00000000000000000000000000000000000A11cE], value: 10000000000000000000 [1e19])
+    │   │   ├─ emit Wrapped(user: Alice: [0x00000000000000000000000000000000000A11cE], aquaIn: 10000000000000000000 [1e19], arcOut: 10000000000000000000 [1e19])
+    │   │   └─ ← [Return] 10000000000000000000 [1e19]
+    │   └─ ← [Return] 10000000000000000000 [1e19]
+    ├─ [1215] ArcMON::fallback(Alice: [0x00000000000000000000000000000000000A11cE]) [staticcall]
+    │   ├─ [896] ArcMON::balanceOf(Alice: [0x00000000000000000000000000000000000A11cE]) [delegatecall]
+    │   │   └─ ← [Return] 10000000000000000000 [1e19]
+    │   └─ ← [Return] 10000000000000000000 [1e19]
+    ├─ [0] VM::prank(Alice: [0x00000000000000000000000000000000000A11cE])
+    │   └─ ← [Return]
+    ├─ [15295] ArcMON::fallback(10000000000000000000 [1e19], Alice: [0x00000000000000000000000000000000000A11cE])
+    │   ├─ [14973] ArcMON::unwrap(10000000000000000000 [1e19], Alice: [0x00000000000000000000000000000000000A11cE]) [delegatecall]
+    │   │   ├─ [288] Pool::index() [staticcall]
+    │   │   │   └─ ← [Return] 1000000000000000000 [1e18]
+    │   │   ├─ emit Transfer(from: Alice: [0x00000000000000000000000000000000000A11cE], to: 0x0000000000000000000000000000000000000000, value: 10000000000000000000 [1e19])
+    │   │   ├─ [2999] AquaMON::transfer(Alice: [0x00000000000000000000000000000000000A11cE], 10000000000000000000 [1e19])
+    │   │   │   ├─ emit Transfer(from: ArcMON: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], to: Alice: [0x00000000000000000000000000000000000A11cE], value: 10000000000000000000 [1e19])
+    │   │   │   └─ ← [Return] true
+    │   │   ├─ emit Unwrapped(user: Alice: [0x00000000000000000000000000000000000A11cE], arcIn: 10000000000000000000 [1e19], aquaOut: 10000000000000000000 [1e19])
+    │   │   └─ ← [Return] 10000000000000000000 [1e19]
+    │   └─ ← [Return] 10000000000000000000 [1e19]
+    ├─ [1215] ArcMON::fallback(Alice: [0x00000000000000000000000000000000000A11cE]) [staticcall]
+    │   ├─ [896] ArcMON::balanceOf(Alice: [0x00000000000000000000000000000000000A11cE]) [delegatecall]
+    │   │   └─ ← [Return] 0
+    │   └─ ← [Return] 0
+    └─ ← [Return]
+
+Suite result: ok. 10 passed; 0 failed; 0 skipped; finished in 1.29ms (1.19ms CPU time)
+
+Ran 1 test suite in 9.58ms (1.29ms CPU time): 10 tests passed, 0 failed, 0 skipped (10 total tests)

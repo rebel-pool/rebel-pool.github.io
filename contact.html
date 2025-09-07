@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Contact | Rebel Pool</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* optional highlight for the Discord CTA */
+    .discord-btn {
+      display:inline-block; text-decoration:none;
+      border:1px solid #7f7f7f; background:#e9e9e9; border-radius:4px;
+      padding:8px 14px; font-weight:700;
+    }
+    .discord-btn:hover { filter: brightness(0.97); }
+  </style>
+</head>
+<body>
+  <div class="masthead">
+    <div class="masthead-title">REBEL POOL</div>
+    <div class="masthead-copyright">&copy; 2025 Rebel Pool Cooperative. All Rights Reserved.</div>
+    <div class="masthead-datebar"></div>
+    <div class="masthead-date">
+      <span id="masthead-date"></span>
+      <span id="masthead-clock"></span>
+    </div>
+    <div class="masthead-datebar"></div>
+  </div>
+
+  <nav id="topnav">
+    <a href="index.html">Home</a>
+    <a href="stake.html">Stake</a>
+    <a href="withdraw.html">Withdraw</a>
+    <a href="wrap.html">Wrap / Unwrap</a>
+    <a href="stats.html">Pool Stats</a>
+    <a href="truth.html">Code Truth</a>
+
+  </nav>
+
+  <div id="container">
+    <div id="sidebar">
+      <a href="faq.html">FAQ</a>
+      <a href="validators.html">Validators</a>
+      <a href="contact.html" class="active">Contact</a>
+      <a href="about.html">About</a>
+    </div>
+
+    <div id="main">
+      <h2>Contact</h2>
+
+      <!-- Primary: Discord -->
+      <div class="card">
+        <div class="card-header">Discord (Primary)</div>
+        <div class="card-body">
+          <p class="muted" style="margin-top:0;">Fastest way to reach the team.</p>
+          <a class="discord-btn" href="https://discord.gg/a4trhXje" target="_blank" rel="noopener">Join our Discord</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Github </div>
+        <div class="card-body">
+          <p class="muted" style="margin-top:0;">Fastest way to reach the team.</p>
+          <a class="discord-btn" href="https://github.com/rebel-pool/rebel-pool.github.io" target="_blank" rel="noopener">File an Issue</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>© 1994–2025 Rebel Pool. Best viewed in Mosaic 2.0. Staking involves risk.</footer>
+
+  <script>
+function updateMastheadDateAndClock() {
+  const d = new Date();
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const formattedDate = d.toLocaleDateString('en-US', options).toUpperCase();
+  document.getElementById('masthead-date').textContent = formattedDate;
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  const ss = String(d.getSeconds()).padStart(2, '0');
+  document.getElementById('masthead-clock').textContent = `${hh}:${mm}:${ss}`;
+}
+updateMastheadDateAndClock();
+setInterval(updateMastheadDateAndClock, 1000);
+  </script>
+</body>
+</html>

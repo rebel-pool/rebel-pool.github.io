@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Stats | Rebel Pool</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="masthead">
+    <div class="masthead-title">REBEL POOL</div>
+    <div class="masthead-copyright">&copy; 2025 Rebel Pool Cooperative. All Rights Reserved.</div>
+    <div class="masthead-datebar"></div>
+    <div class="masthead-date">
+      <span id="masthead-date"></span>
+      <span id="masthead-clock"></span>
+    </div>
+    <div class="masthead-datebar"></div>
+  </div>
+
+  <nav id="topnav" style="display: flex; align-items: center;">
+    <a href="index.html">Home</a>
+    <a href="stake.html">Stake</a>
+    <a href="withdraw.html">Withdraw</a>
+    <a href="wrap.html">Wrap / Unwrap</a>
+    <a href="stats.html" class="active">Pool Stats</a>
+    <a href="truth.html">Code Truth</a>
+    <div style="margin-left:auto; display:flex; align-items:center; gap:6px; padding-right: 12px;">
+      <label for="network-select" style="font-size:13px;">Network:</label>
+      <select id="network-select" style="font-size:14px; padding:2px 6px; margin-left:6px;"></select>
+    </div>
+  </nav>
+
+  <div id="container">
+    <div id="sidebar">
+      <a href="faq.html">FAQ</a>
+      <a href="validators.html">Validators</a>
+      <a href="contact.html">Contact</a>
+      <a href="about.html">About</a>
+    </div>
+    <div id="main">
+      <h2>Protocol Stats</h2>
+      <p class="muted fine">
+        Network: <span id="network-tag" class="pill">loading…</span>
+        • RPC: <span id="rpc-ok" class="pill loading">checking…</span>
+        • Last updated: <span id="last-updated" class="mono">—</span>
+      </p>
+      <div class="cards" style="margin-top:10px;">
+        <div class="card" id="card-core">
+          <h3>Pool Core</h3>
+          <div class="kv"><span id="lbl-tvl">TVL (total assets)</span><span class="mono" id="tvl">—</span></div>
+          <div class="kv"><span id="lbl-shares">Total Shares</span><span class="mono" id="total-shares">—</span></div>
+          <div class="kv"><span id="lbl-index">Index (1e18)</span><span class="mono" id="index">—</span></div>
+          <div class="kv"><span>Health</span><span id="health" class="pill">—</span></div>
+        </div>
+        <div class="card" id="card-stmon">
+          <h3 id="card-stmon-hdr">AquaMON (stMON)</h3>
+          <div class="kv"><span>Symbol</span><span class="mono" id="a-symbol">—</span></div>
+          <div class="kv"><span>Decimals</span><span class="mono" id="a-dec">—</span></div>
+          <div class="kv"><span>Total Supply</span><span class="mono" id="a-supply">—</span></div>
+          <div class="kv"><span id="a-rate-label">1 stMON ≈</span><span class="mono" id="a-rate">—</span></div>
+          <div class="fine" id="desc-aqua">* Rebasing over pool shares.</div>
+        </div>
+        <div class="card" id="card-wstmon">
+          <h3 id="card-wstmon-hdr">ArcMON (wstMON)</h3>
+          <div class="kv"><span>Symbol</span><span class="mono" id="w-symbol">—</span></div>
+          <div class="kv"><span>Decimals</span><span class="mono" id="w-dec">—</span></div>
+          <div class="kv"><span>Total Supply</span><span class="mono" id="w-supply">—</span></div>
+          <div class="kv"><span id="w-rate-label">1 wstMON ≈</span><span class="mono" id="w-rate">—</span></div>
+          <div class="fine" id="desc-arc">* Non-rebasing wrapped shares.</div>
+        </div>
+      </div>
+      <h3 style="margin-top:22px;">Explorer & Contracts</h3>
+      <table class="table">
+        <thead><tr><th>Contract</th><th class="mono">Address</th><th class="center">Explorer</th></tr></thead>
+        <tbody>
+          <tr>
+            <td id="tbl-pool-label">Pool Core</td>
+            <td class="mono" id="addr-pool">—</td>
+            <td class="center"><a id="link-pool" href="#" target="_blank">view</a></td>
+          </tr>
+          <tr>
+            <td id="tbl-aqua-label">AquaMON (stMON)</td>
+            <td class="mono" id="addr-aqua">—</td>
+            <td class="center"><a id="link-aqua" href="#" target="_blank">view</a></td>
+          </tr>
+          <tr>
+            <td id="tbl-arc-label">ArcMON (wstMON)</td>
+            <td class="mono" id="addr-arc">—</td>
+            <td class="center"><a id="link-arc" href="#" target="_blank">view</a></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:18px;" class="muted fine" id="desc-stats-note">
+        Notes: Values fetched live from Monad testnet RPC. Index is 1e18 scaled. Rates are indicative.
+      </div>
+    </div>
+  </div>
+  <footer>
+    © 1994–2025 Rebel Pool. Best viewed in Mosaic 2.0. Staking involves risk.
+  </footer>
+  <script src="js/chain.js"></script>
+  <script>
+    function updateMastheadDateAndClock() {
+      const d = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const formattedDate = d.toLocaleDateString('en-US', options).toUpperCase();
+      document.getElementById('masthead-date').textContent = formattedDate;
+      const hh = String(d.getHours()).padStart(2, '0');
+      const mm = String(d.getMinutes()).padStart(2, '0');
+      const ss = String(d.getSeconds()).padStart(2, '0');
+      document.getElementById('masthead-clock').textContent = `${hh}:${mm}:${ss}`;
+    }
+    updateMastheadDateAndClock();
+    setInterval(updateMastheadDateAndClock, 1000);
+
+    window.addEventListener("DOMContentLoaded", function() {
+      const cfg = window.getNetConfig ? getNetConfig() : {};
+      const NATIVE = cfg.coin?.native?.name || "Monad";
+      const NATIVE_SYM = cfg.coin?.native?.symbol || "MON";
+      const WRAPPED = cfg.coin?.wrapped?.name || "Wrapped Monad";
+      const WRAPPED_SYM = cfg.coin?.wrapped?.symbol || "WMON";
+      const AQUA = cfg.coin?.aqua?.name || "AquaMON";
+      const AQUA_SYM = cfg.coin?.aqua?.symbol || "stMON";
+      const ARC = cfg.coin?.arc?.name || "ArcMON";
+      const ARC_SYM = cfg.coin?.arc?.symbol || "wstMON";
+
+    
+      document.getElementById("card-stmon-hdr").textContent = `${AQUA} (${AQUA_SYM})`;
+      document.getElementById("card-wstmon-hdr").textContent = `${ARC} (${ARC_SYM})`;
+
+      document.getElementById("a-rate-label").textContent = `1 ${AQUA_SYM} ≈`;
+      document.getElementById("w-rate-label").textContent = `1 ${ARC_SYM} ≈`;
+
+      document.getElementById("tbl-pool-label").textContent = "Pool Core";
+      document.getElementById("tbl-aqua-label").textContent = `${AQUA} (${AQUA_SYM})`;
+      document.getElementById("tbl-arc-label").textContent = `${ARC} (${ARC_SYM})`;
+
+      document.getElementById("desc-aqua").textContent = `* Rebasing over pool shares.`;
+      document.getElementById("desc-arc").textContent = `* Non-rebasing wrapped shares.`;
+
+      document.getElementById("lbl-tvl").textContent = `TVL (total ${NATIVE_SYM} assets)`;
+      document.getElementById("lbl-index").textContent = `Index (1e18, ${AQUA_SYM}/${NATIVE_SYM})`;
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="js/stats.js" defer></script>
+</body>
+</html>

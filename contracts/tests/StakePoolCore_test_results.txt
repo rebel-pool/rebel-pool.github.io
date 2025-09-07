@@ -1,0 +1,497 @@
+No files changed, compilation skipped
+
+Ran 17 tests for test/StakePoolCore.t.sol:StakePoolCoreTest
+[PASS] testDepositEmitsEvent() (gas: 169269)
+Traces:
+  [191969] StakePoolCoreTest::testDepositEmitsEvent()
+    ├─ [0] VM::startPrank(0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return]
+    ├─ [24349] MockERC20::approve(StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], 100000000000000000000 [1e20])
+    │   ├─ emit Approval(owner: 0x000000000000000000000000000000000000bEEF, spender: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], value: 100000000000000000000 [1e20])
+    │   └─ ← [Return] true
+    ├─ [0] VM::expectEmit(true, true, true, true, StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a])
+    │   └─ ← [Return]
+    ├─ emit Deposited(user: 0x000000000000000000000000000000000000bEEF, assets: 100000000000000000000 [1e20], shares: 100000000000000000000 [1e20], to: 0x000000000000000000000000000000000000bEEF)
+    ├─ [148585] StakePoolCore::deposit(100000000000000000000 [1e20], 0x000000000000000000000000000000000000bEEF)
+    │   ├─ [30244] MockERC20::transferFrom(0x000000000000000000000000000000000000bEEF, StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], 100000000000000000000 [1e20])
+    │   │   ├─ emit Transfer(from: 0x000000000000000000000000000000000000bEEF, to: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], value: 100000000000000000000 [1e20])
+    │   │   └─ ← [Return] true
+    │   ├─ [46526] MockAquaMON::mintShares(0x000000000000000000000000000000000000bEEF, 100000000000000000000 [1e20])
+    │   │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: 0x000000000000000000000000000000000000bEEF, value: 100000000000000000000 [1e20])
+    │   │   └─ ← [Return]
+    │   ├─ emit Deposited(user: 0x000000000000000000000000000000000000bEEF, assets: 100000000000000000000 [1e20], shares: 100000000000000000000 [1e20], to: 0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return] 100000000000000000000 [1e20]
+    ├─ [0] VM::stopPrank()
+    │   └─ ← [Return]
+    └─ ← [Return]
+
+[PASS] testDepositMintWithdrawRedeemFlow() (gas: 180120)
+Traces:
+  [230416] StakePoolCoreTest::testDepositMintWithdrawRedeemFlow()
+    ├─ [0] VM::startPrank(0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return]
+    ├─ [24349] MockERC20::approve(StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], 1000000000000000000000 [1e21])
+    │   ├─ emit Approval(owner: 0x000000000000000000000000000000000000bEEF, spender: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], value: 1000000000000000000000 [1e21])
+    │   └─ ← [Return] true
+    ├─ [148585] StakePoolCore::deposit(100000000000000000000 [1e20], 0x000000000000000000000000000000000000bEEF)
+    │   ├─ [30244] MockERC20::transferFrom(0x000000000000000000000000000000000000bEEF, StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], 100000000000000000000 [1e20])
+    │   │   ├─ emit Transfer(from: 0x000000000000000000000000000000000000bEEF, to: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], value: 100000000000000000000 [1e20])
+    │   │   └─ ← [Return] true
+    │   ├─ [46526] MockAquaMON::mintShares(0x000000000000000000000000000000000000bEEF, 100000000000000000000 [1e20])
+    │   │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: 0x000000000000000000000000000000000000bEEF, value: 100000000000000000000 [1e20])
+    │   │   └─ ← [Return]
+    │   ├─ emit Deposited(user: 0x000000000000000000000000000000000000bEEF, assets: 100000000000000000000 [1e20], shares: 100000000000000000000 [1e20], to: 0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return] 100000000000000000000 [1e20]
+    ├─ [16885] StakePoolCore::redeem(50000000000000000000 [5e19], 0x000000000000000000000000000000000000bEEF, 0x000000000000000000000000000000000000bEEF)
+    │   ├─ [758] MockAquaMON::sharesOf(0x000000000000000000000000000000000000bEEF) [staticcall]
+    │   │   └─ ← [Return] 100000000000000000000 [1e20]
+    │   ├─ [2939] MockAquaMON::burnShares(0x000000000000000000000000000000000000bEEF, 50000000000000000000 [5e19])
+    │   │   ├─ emit Transfer(from: 0x000000000000000000000000000000000000bEEF, to: 0x0000000000000000000000000000000000000000, value: 50000000000000000000 [5e19])
+    │   │   └─ ← [Return]
+    │   ├─ [2955] MockERC20::transfer(0x000000000000000000000000000000000000bEEF, 50000000000000000000 [5e19])
+    │   │   ├─ emit Transfer(from: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], to: 0x000000000000000000000000000000000000bEEF, value: 50000000000000000000 [5e19])
+    │   │   └─ ← [Return] true
+    │   ├─ emit Withdrawn(user: 0x000000000000000000000000000000000000bEEF, shares: 50000000000000000000 [5e19], assets: 50000000000000000000 [5e19], to: 0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return] 50000000000000000000 [5e19]
+    ├─ [758] MockAquaMON::sharesOf(0x000000000000000000000000000000000000bEEF) [staticcall]
+    │   └─ ← [Return] 50000000000000000000 [5e19]
+    ├─ [758] MockAquaMON::sharesOf(0x000000000000000000000000000000000000bEEF) [staticcall]
+    │   └─ ← [Return] 50000000000000000000 [5e19]
+    ├─ [16656] StakePoolCore::redeem(50000000000000000000 [5e19], 0x000000000000000000000000000000000000bEEF, 0x000000000000000000000000000000000000bEEF)
+    │   ├─ [758] MockAquaMON::sharesOf(0x000000000000000000000000000000000000bEEF) [staticcall]
+    │   │   └─ ← [Return] 50000000000000000000 [5e19]
+    │   ├─ [2939] MockAquaMON::burnShares(0x000000000000000000000000000000000000bEEF, 50000000000000000000 [5e19])
+    │   │   ├─ emit Transfer(from: 0x000000000000000000000000000000000000bEEF, to: 0x0000000000000000000000000000000000000000, value: 50000000000000000000 [5e19])
+    │   │   └─ ← [Return]
+    │   ├─ [2955] MockERC20::transfer(0x000000000000000000000000000000000000bEEF, 50000000000000000000 [5e19])
+    │   │   ├─ emit Transfer(from: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], to: 0x000000000000000000000000000000000000bEEF, value: 50000000000000000000 [5e19])
+    │   │   └─ ← [Return] true
+    │   ├─ emit Withdrawn(user: 0x000000000000000000000000000000000000bEEF, shares: 50000000000000000000 [5e19], assets: 50000000000000000000 [5e19], to: 0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return] 50000000000000000000 [5e19]
+    ├─ [758] MockAquaMON::sharesOf(0x000000000000000000000000000000000000bEEF) [staticcall]
+    │   └─ ← [Return] 0
+    ├─ [0] VM::stopPrank()
+    │   └─ ← [Return]
+    └─ ← [Return]
+
+[PASS] testDustHandling() (gas: 163962)
+Traces:
+  [210218] StakePoolCoreTest::testDustHandling()
+    ├─ [0] VM::startPrank(0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return]
+    ├─ [24349] MockERC20::approve(StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], 100000000000000000000 [1e20])
+    │   ├─ emit Approval(owner: 0x000000000000000000000000000000000000bEEF, spender: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], value: 100000000000000000000 [1e20])
+    │   └─ ← [Return] true
+    ├─ [148585] StakePoolCore::deposit(1, 0x000000000000000000000000000000000000bEEF)
+    │   ├─ [30244] MockERC20::transferFrom(0x000000000000000000000000000000000000bEEF, StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], 1)
+    │   │   ├─ emit Transfer(from: 0x000000000000000000000000000000000000bEEF, to: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], value: 1)
+    │   │   └─ ← [Return] true
+    │   ├─ [46526] MockAquaMON::mintShares(0x000000000000000000000000000000000000bEEF, 1)
+    │   │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: 0x000000000000000000000000000000000000bEEF, value: 1)
+    │   │   └─ ← [Return]
+    │   ├─ emit Deposited(user: 0x000000000000000000000000000000000000bEEF, assets: 1, shares: 1, to: 0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return] 1
+    ├─ [16656] StakePoolCore::redeem(1, 0x000000000000000000000000000000000000bEEF, 0x000000000000000000000000000000000000bEEF)
+    │   ├─ [758] MockAquaMON::sharesOf(0x000000000000000000000000000000000000bEEF) [staticcall]
+    │   │   └─ ← [Return] 1
+    │   ├─ [2939] MockAquaMON::burnShares(0x000000000000000000000000000000000000bEEF, 1)
+    │   │   ├─ emit Transfer(from: 0x000000000000000000000000000000000000bEEF, to: 0x0000000000000000000000000000000000000000, value: 1)
+    │   │   └─ ← [Return]
+    │   ├─ [2955] MockERC20::transfer(0x000000000000000000000000000000000000bEEF, 1)
+    │   │   ├─ emit Transfer(from: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], to: 0x000000000000000000000000000000000000bEEF, value: 1)
+    │   │   └─ ← [Return] true
+    │   ├─ emit Withdrawn(user: 0x000000000000000000000000000000000000bEEF, shares: 1, assets: 1, to: 0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return] 1
+    ├─ [758] MockAquaMON::sharesOf(0x000000000000000000000000000000000000bEEF) [staticcall]
+    │   └─ ← [Return] 0
+    ├─ [0] VM::stopPrank()
+    │   └─ ← [Return]
+    └─ ← [Return]
+
+[PASS] testExceedsDepositLimit() (gas: 84834)
+Traces:
+  [84834] StakePoolCoreTest::testExceedsDepositLimit()
+    ├─ [30742] StakePoolCore::setLimits(10000000000000000000 [1e19], 0)
+    │   ├─ emit ParamsUpdated(key: 0x6d61784465706f73697400000000000000000000000000000000000000000000, oldVal: 0, newVal: 10000000000000000000 [1e19])
+    │   ├─ emit ParamsUpdated(key: 0x6d61784d696e7400000000000000000000000000000000000000000000000000, oldVal: 0, newVal: 0)
+    │   └─ ← [Return]
+    ├─ [0] VM::startPrank(0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return]
+    ├─ [24349] MockERC20::approve(StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], 100000000000000000000 [1e20])
+    │   ├─ emit Approval(owner: 0x000000000000000000000000000000000000bEEF, spender: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], value: 100000000000000000000 [1e20])
+    │   └─ ← [Return] true
+    ├─ [0] VM::expectRevert(custom error 0xc31eb0e0: O*)
+    │   └─ ← [Return]
+    ├─ [12495] StakePoolCore::deposit(20000000000000000000 [2e19], 0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Revert] ExceedsLimit()
+    ├─ [0] VM::stopPrank()
+    │   └─ ← [Return]
+    └─ ← [Return]
+
+[PASS] testExceedsMintLimit() (gas: 85459)
+Traces:
+  [85459] StakePoolCoreTest::testExceedsMintLimit()
+    ├─ [30742] StakePoolCore::setLimits(0, 10000000000000000000 [1e19])
+    │   ├─ emit ParamsUpdated(key: 0x6d61784465706f73697400000000000000000000000000000000000000000000, oldVal: 0, newVal: 0)
+    │   ├─ emit ParamsUpdated(key: 0x6d61784d696e7400000000000000000000000000000000000000000000000000, oldVal: 0, newVal: 10000000000000000000 [1e19])
+    │   └─ ← [Return]
+    ├─ [0] VM::startPrank(0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return]
+    ├─ [24349] MockERC20::approve(StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], 100000000000000000000 [1e20])
+    │   ├─ emit Approval(owner: 0x000000000000000000000000000000000000bEEF, spender: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], value: 100000000000000000000 [1e20])
+    │   └─ ← [Return] true
+    ├─ [0] VM::expectRevert(custom error 0xc31eb0e0: O*)
+    │   └─ ← [Return]
+    ├─ [12720] StakePoolCore::mint(20000000000000000000 [2e19], 0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Revert] ExceedsLimit()
+    ├─ [0] VM::stopPrank()
+    │   └─ ← [Return]
+    └─ ← [Return]
+
+[PASS] testFeeSkimmingLogic() (gas: 234859)
+Logs:
+  pending fees 100000000000000000000
+  totalAssets 109900000000000000000000
+  balance 110000000000000000000000
+
+Traces:
+  [277459] StakePoolCoreTest::testFeeSkimmingLogic()
+    ├─ [0] VM::startPrank(0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return]
+    ├─ [24349] MockERC20::approve(StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], 100000000000000000000000 [1e23])
+    │   ├─ emit Approval(owner: 0x000000000000000000000000000000000000bEEF, spender: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], value: 100000000000000000000000 [1e23])
+    │   └─ ← [Return] true
+    ├─ [148585] StakePoolCore::deposit(100000000000000000000000 [1e23], 0x000000000000000000000000000000000000bEEF)
+    │   ├─ [30244] MockERC20::transferFrom(0x000000000000000000000000000000000000bEEF, StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], 100000000000000000000000 [1e23])
+    │   │   ├─ emit Transfer(from: 0x000000000000000000000000000000000000bEEF, to: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], value: 100000000000000000000000 [1e23])
+    │   │   └─ ← [Return] true
+    │   ├─ [46526] MockAquaMON::mintShares(0x000000000000000000000000000000000000bEEF, 100000000000000000000000 [1e23])
+    │   │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: 0x000000000000000000000000000000000000bEEF, value: 100000000000000000000000 [1e23])
+    │   │   └─ ← [Return]
+    │   ├─ emit Deposited(user: 0x000000000000000000000000000000000000bEEF, assets: 100000000000000000000000 [1e23], shares: 100000000000000000000000 [1e23], to: 0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return] 100000000000000000000000 [1e23]
+    ├─ [0] VM::stopPrank()
+    │   └─ ← [Return]
+    ├─ [0] VM::roll(10001 [1e4])
+    │   └─ ← [Return]
+    ├─ [7504] MockERC20::mint(StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], 10000000000000000000000 [1e22])
+    │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], value: 10000000000000000000000 [1e22])
+    │   └─ ← [Return]
+    ├─ [36383] StakePoolCore::accrue()
+    │   ├─ emit IndexUpdated(oldIndex: 1000000000000000000 [1e18], newIndex: 1099000000000000000 [1.099e18])
+    │   └─ ← [Return] 1099000000000000000 [1.099e18]
+    ├─ [368] StakePoolCore::pendingFees() [staticcall]
+    │   └─ ← [Return] 100000000000000000000 [1e20]
+    ├─ [0] console::log("pending fees", 100000000000000000000 [1e20]) [staticcall]
+    │   └─ ← [Stop]
+    ├─ [271] StakePoolCore::totalAssets() [staticcall]
+    │   └─ ← [Return] 109900000000000000000000 [1.099e23]
+    ├─ [0] console::log("totalAssets", 109900000000000000000000 [1.099e23]) [staticcall]
+    │   └─ ← [Stop]
+    ├─ [563] MockERC20::balanceOf(StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a]) [staticcall]
+    │   └─ ← [Return] 110000000000000000000000 [1.1e23]
+    ├─ [0] console::log("balance", 110000000000000000000000 [1.1e23]) [staticcall]
+    │   └─ ← [Stop]
+    ├─ [32103] StakePoolCore::skimFees(100000000000000000000 [1e20])
+    │   ├─ [563] MockERC20::balanceOf(StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a]) [staticcall]
+    │   │   └─ ← [Return] 110000000000000000000000 [1.1e23]
+    │   ├─ [24855] MockERC20::transfer(0x000000000000000000000000000000000000cafE, 100000000000000000000 [1e20])
+    │   │   ├─ emit Transfer(from: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], to: 0x000000000000000000000000000000000000cafE, value: 100000000000000000000 [1e20])
+    │   │   └─ ← [Return] true
+    │   ├─ emit FeesSkimmed(to: 0x000000000000000000000000000000000000cafE, assets: 100000000000000000000 [1e20])
+    │   └─ ← [Return]
+    ├─ [563] MockERC20::balanceOf(0x000000000000000000000000000000000000cafE) [staticcall]
+    │   └─ ← [Return] 100000000000000000000 [1e20]
+    └─ ← [Return]
+
+[PASS] testFuzz_DepositWithdraw(uint256) (runs: 256, μ: 176587, ~: 176593)
+Traces:
+  [226133] StakePoolCoreTest::testFuzz_DepositWithdraw(1957)
+    ├─ [0] console::log("Bound result", 999999999999999000001958 [9.999e23]) [staticcall]
+    │   └─ ← [Stop]
+    ├─ [0] VM::startPrank(0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return]
+    ├─ [12304] MockERC20::mint(0x000000000000000000000000000000000000bEEF, 999999999999999000001958 [9.999e23])
+    │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: 0x000000000000000000000000000000000000bEEF, value: 999999999999999000001958 [9.999e23])
+    │   └─ ← [Return]
+    ├─ [24349] MockERC20::approve(StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], 999999999999999000001958 [9.999e23])
+    │   ├─ emit Approval(owner: 0x000000000000000000000000000000000000bEEF, spender: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], value: 999999999999999000001958 [9.999e23])
+    │   └─ ← [Return] true
+    ├─ [143785] StakePoolCore::deposit(999999999999999000001958 [9.999e23], 0x000000000000000000000000000000000000bEEF)
+    │   ├─ [25444] MockERC20::transferFrom(0x000000000000000000000000000000000000bEEF, StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], 999999999999999000001958 [9.999e23])
+    │   │   ├─ emit Transfer(from: 0x000000000000000000000000000000000000bEEF, to: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], value: 999999999999999000001958 [9.999e23])
+    │   │   └─ ← [Return] true
+    │   ├─ [46526] MockAquaMON::mintShares(0x000000000000000000000000000000000000bEEF, 999999999999999000001958 [9.999e23])
+    │   │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: 0x000000000000000000000000000000000000bEEF, value: 999999999999999000001958 [9.999e23])
+    │   │   └─ ← [Return]
+    │   ├─ emit Deposited(user: 0x000000000000000000000000000000000000bEEF, assets: 999999999999999000001958 [9.999e23], shares: 999999999999999000001958 [9.999e23], to: 0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return] 999999999999999000001958 [9.999e23]
+    ├─ [758] MockAquaMON::sharesOf(0x000000000000000000000000000000000000bEEF) [staticcall]
+    │   └─ ← [Return] 999999999999999000001958 [9.999e23]
+    ├─ [19456] StakePoolCore::redeem(999999999999999000001958 [9.999e23], 0x000000000000000000000000000000000000bEEF, 0x000000000000000000000000000000000000bEEF)
+    │   ├─ [758] MockAquaMON::sharesOf(0x000000000000000000000000000000000000bEEF) [staticcall]
+    │   │   └─ ← [Return] 999999999999999000001958 [9.999e23]
+    │   ├─ [2939] MockAquaMON::burnShares(0x000000000000000000000000000000000000bEEF, 999999999999999000001958 [9.999e23])
+    │   │   ├─ emit Transfer(from: 0x000000000000000000000000000000000000bEEF, to: 0x0000000000000000000000000000000000000000, value: 999999999999999000001958 [9.999e23])
+    │   │   └─ ← [Return]
+    │   ├─ [5755] MockERC20::transfer(0x000000000000000000000000000000000000bEEF, 999999999999999000001958 [9.999e23])
+    │   │   ├─ emit Transfer(from: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], to: 0x000000000000000000000000000000000000bEEF, value: 999999999999999000001958 [9.999e23])
+    │   │   └─ ← [Return] true
+    │   ├─ emit Withdrawn(user: 0x000000000000000000000000000000000000bEEF, shares: 999999999999999000001958 [9.999e23], assets: 999999999999999000001958 [9.999e23], to: 0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return] 999999999999999000001958 [9.999e23]
+    ├─ [758] MockAquaMON::sharesOf(0x000000000000000000000000000000000000bEEF) [staticcall]
+    │   └─ ← [Return] 0
+    ├─ [0] VM::stopPrank()
+    │   └─ ← [Return]
+    └─ ← [Return]
+
+[PASS] testMintAndWithdrawExact() (gas: 206601)
+Traces:
+  [212201] StakePoolCoreTest::testMintAndWithdrawExact()
+    ├─ [0] VM::startPrank(0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return]
+    ├─ [24349] MockERC20::approve(StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], 1000000000000000000000 [1e21])
+    │   ├─ emit Approval(owner: 0x000000000000000000000000000000000000bEEF, spender: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], value: 1000000000000000000000 [1e21])
+    │   └─ ← [Return] true
+    ├─ [148898] StakePoolCore::mint(100000000000000000000 [1e20], 0x000000000000000000000000000000000000bEEF)
+    │   ├─ [30244] MockERC20::transferFrom(0x000000000000000000000000000000000000bEEF, StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], 100000000000000000000 [1e20])
+    │   │   ├─ emit Transfer(from: 0x000000000000000000000000000000000000bEEF, to: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], value: 100000000000000000000 [1e20])
+    │   │   └─ ← [Return] true
+    │   ├─ [46526] MockAquaMON::mintShares(0x000000000000000000000000000000000000bEEF, 100000000000000000000 [1e20])
+    │   │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: 0x000000000000000000000000000000000000bEEF, value: 100000000000000000000 [1e20])
+    │   │   └─ ← [Return]
+    │   ├─ emit Deposited(user: 0x000000000000000000000000000000000000bEEF, assets: 100000000000000000000 [1e20], shares: 100000000000000000000 [1e20], to: 0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return] 100000000000000000000 [1e20]
+    ├─ [758] MockAquaMON::sharesOf(0x000000000000000000000000000000000000bEEF) [staticcall]
+    │   └─ ← [Return] 100000000000000000000 [1e20]
+    ├─ [17093] StakePoolCore::withdraw(10000000000000000000 [1e19], 0x000000000000000000000000000000000000bEEF, 0x000000000000000000000000000000000000bEEF)
+    │   ├─ [758] MockAquaMON::sharesOf(0x000000000000000000000000000000000000bEEF) [staticcall]
+    │   │   └─ ← [Return] 100000000000000000000 [1e20]
+    │   ├─ [2939] MockAquaMON::burnShares(0x000000000000000000000000000000000000bEEF, 10000000000000000000 [1e19])
+    │   │   ├─ emit Transfer(from: 0x000000000000000000000000000000000000bEEF, to: 0x0000000000000000000000000000000000000000, value: 10000000000000000000 [1e19])
+    │   │   └─ ← [Return]
+    │   ├─ [2955] MockERC20::transfer(0x000000000000000000000000000000000000bEEF, 10000000000000000000 [1e19])
+    │   │   ├─ emit Transfer(from: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], to: 0x000000000000000000000000000000000000bEEF, value: 10000000000000000000 [1e19])
+    │   │   └─ ← [Return] true
+    │   ├─ emit Withdrawn(user: 0x000000000000000000000000000000000000bEEF, shares: 10000000000000000000 [1e19], assets: 10000000000000000000 [1e19], to: 0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return] 10000000000000000000 [1e19]
+    ├─ [758] MockAquaMON::sharesOf(0x000000000000000000000000000000000000bEEF) [staticcall]
+    │   └─ ← [Return] 90000000000000000000 [9e19]
+    ├─ [0] VM::stopPrank()
+    │   └─ ← [Return]
+    └─ ← [Return]
+
+[PASS] testOnlyOwnerCanPauseAndUpgrade() (gas: 32121)
+Traces:
+  [45417] StakePoolCoreTest::testOnlyOwnerCanPauseAndUpgrade()
+    ├─ [0] VM::prank(0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return]
+    ├─ [0] VM::expectRevert(custom error 0xf4844814)
+    │   └─ ← [Return]
+    ├─ [2969] StakePoolCore::pause()
+    │   └─ ← [Revert] OwnableUnauthorizedAccount(0x000000000000000000000000000000000000bEEF)
+    ├─ [26289] StakePoolCore::pause()
+    │   ├─ emit Paused(account: StakePoolCoreTest: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496])
+    │   └─ ← [Return]
+    ├─ [699] StakePoolCore::paused() [staticcall]
+    │   └─ ← [Return] true
+    ├─ [1845] StakePoolCore::unpause()
+    │   ├─ emit Unpaused(account: StakePoolCoreTest: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496])
+    │   └─ ← [Return]
+    ├─ [699] StakePoolCore::paused() [staticcall]
+    │   └─ ← [Return] false
+    └─ ← [Return]
+
+[PASS] testPauseBlocksUserOps() (gas: 219353)
+Traces:
+  [222153] StakePoolCoreTest::testPauseBlocksUserOps()
+    ├─ [0] VM::startPrank(0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return]
+    ├─ [24349] MockERC20::approve(StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], 100000000000000000000 [1e20])
+    │   ├─ emit Approval(owner: 0x000000000000000000000000000000000000bEEF, spender: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], value: 100000000000000000000 [1e20])
+    │   └─ ← [Return] true
+    ├─ [148585] StakePoolCore::deposit(10000000000000000000 [1e19], 0x000000000000000000000000000000000000bEEF)
+    │   ├─ [30244] MockERC20::transferFrom(0x000000000000000000000000000000000000bEEF, StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], 10000000000000000000 [1e19])
+    │   │   ├─ emit Transfer(from: 0x000000000000000000000000000000000000bEEF, to: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], value: 10000000000000000000 [1e19])
+    │   │   └─ ← [Return] true
+    │   ├─ [46526] MockAquaMON::mintShares(0x000000000000000000000000000000000000bEEF, 10000000000000000000 [1e19])
+    │   │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: 0x000000000000000000000000000000000000bEEF, value: 10000000000000000000 [1e19])
+    │   │   └─ ← [Return]
+    │   ├─ emit Deposited(user: 0x000000000000000000000000000000000000bEEF, assets: 10000000000000000000 [1e19], shares: 10000000000000000000 [1e19], to: 0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return] 10000000000000000000 [1e19]
+    ├─ [0] VM::stopPrank()
+    │   └─ ← [Return]
+    ├─ [24289] StakePoolCore::pause()
+    │   ├─ emit Paused(account: StakePoolCoreTest: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496])
+    │   └─ ← [Return]
+    ├─ [0] VM::startPrank(0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return]
+    ├─ [0] VM::expectRevert(custom error 0xc31eb0e0: d93c066500000000000000000000000000000000000000000000000000000000)
+    │   └─ ← [Return]
+    ├─ [905] StakePoolCore::deposit(1000000000000000000 [1e18], 0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Revert] EnforcedPause()
+    ├─ [0] VM::expectRevert(custom error 0xc31eb0e0: d93c066500000000000000000000000000000000000000000000000000000000)
+    │   └─ ← [Return]
+    ├─ [1262] StakePoolCore::withdraw(1000000000000000000 [1e18], 0x000000000000000000000000000000000000bEEF, 0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Revert] EnforcedPause()
+    ├─ [0] VM::expectRevert(custom error 0xc31eb0e0: d93c066500000000000000000000000000000000000000000000000000000000)
+    │   └─ ← [Return]
+    ├─ [1290] StakePoolCore::redeem(1000000000000000000 [1e18], 0x000000000000000000000000000000000000bEEF, 0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Revert] EnforcedPause()
+    ├─ [0] VM::stopPrank()
+    │   └─ ← [Return]
+    └─ ← [Return]
+
+[PASS] testPreviewFunctions() (gas: 169832)
+Traces:
+  [192532] StakePoolCoreTest::testPreviewFunctions()
+    ├─ [0] VM::startPrank(0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return]
+    ├─ [24349] MockERC20::approve(StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], 100000000000000000000 [1e20])
+    │   ├─ emit Approval(owner: 0x000000000000000000000000000000000000bEEF, spender: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], value: 100000000000000000000 [1e20])
+    │   └─ ← [Return] true
+    ├─ [148585] StakePoolCore::deposit(100000000000000000000 [1e20], 0x000000000000000000000000000000000000bEEF)
+    │   ├─ [30244] MockERC20::transferFrom(0x000000000000000000000000000000000000bEEF, StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], 100000000000000000000 [1e20])
+    │   │   ├─ emit Transfer(from: 0x000000000000000000000000000000000000bEEF, to: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], value: 100000000000000000000 [1e20])
+    │   │   └─ ← [Return] true
+    │   ├─ [46526] MockAquaMON::mintShares(0x000000000000000000000000000000000000bEEF, 100000000000000000000 [1e20])
+    │   │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: 0x000000000000000000000000000000000000bEEF, value: 100000000000000000000 [1e20])
+    │   │   └─ ← [Return]
+    │   ├─ emit Deposited(user: 0x000000000000000000000000000000000000bEEF, assets: 100000000000000000000 [1e20], shares: 100000000000000000000 [1e20], to: 0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return] 100000000000000000000 [1e20]
+    ├─ [0] VM::stopPrank()
+    │   └─ ← [Return]
+    ├─ [1565] StakePoolCore::convertToShares(100000000000000000000 [1e20]) [staticcall]
+    │   └─ ← [Return] 100000000000000000000 [1e20]
+    ├─ [449] StakePoolCore::convertToAssets(100000000000000000000 [1e20]) [staticcall]
+    │   └─ ← [Return] 100000000000000000000 [1e20]
+    └─ ← [Return]
+
+[PASS] testRecoverLostTokens() (gas: 555767)
+Traces:
+  [575667] StakePoolCoreTest::testRecoverLostTokens()
+    ├─ [445340] → new MockERC20@0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9
+    │   └─ ← [Return] 1884 bytes of code
+    ├─ [46504] MockERC20::mint(StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], 100000000000000000000 [1e20])
+    │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], value: 100000000000000000000 [1e20])
+    │   └─ ← [Return]
+    ├─ [34740] StakePoolCore::recoverLostTokens(MockERC20: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], StakePoolCoreTest: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496], 100000000000000000000 [1e20])
+    │   ├─ [24855] MockERC20::transfer(StakePoolCoreTest: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496], 100000000000000000000 [1e20])
+    │   │   ├─ emit Transfer(from: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], to: StakePoolCoreTest: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496], value: 100000000000000000000 [1e20])
+    │   │   └─ ← [Return] true
+    │   └─ ← [Return]
+    ├─ [563] MockERC20::balanceOf(StakePoolCoreTest: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496]) [staticcall]
+    │   └─ ← [Return] 100000000000000000000 [1e20]
+    ├─ [0] VM::expectRevert(custom error 0xc31eb0e0: 35be3ac800000000000000000000000000000000000000000000000000000000)
+    │   └─ ← [Return]
+    ├─ [1140] StakePoolCore::recoverLostTokens(MockERC20: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], StakePoolCoreTest: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496], 1000000000000000000 [1e18])
+    │   └─ ← [Revert] InvalidConfig()
+    └─ ← [Return]
+
+[PASS] testRevertFeeAboveCap() (gas: 17205)
+Traces:
+  [17205] StakePoolCoreTest::testRevertFeeAboveCap()
+    ├─ [0] VM::expectRevert(custom error 0xf28dceb3:  fee too high)
+    │   └─ ← [Return]
+    ├─ [2741] StakePoolCore::setFeeParams(2100, 0, 0x000000000000000000000000000000000000cafE)
+    │   └─ ← [Revert] fee too high
+    ├─ [0] VM::expectRevert(custom error 0xf28dceb3:  perf too high)
+    │   └─ ← [Return]
+    ├─ [2760] StakePoolCore::setFeeParams(0, 2100, 0x000000000000000000000000000000000000cafE)
+    │   └─ ← [Revert] perf too high
+    └─ ← [Return]
+
+[PASS] testRevertInsufficientShares() (gas: 174486)
+Traces:
+  [197186] StakePoolCoreTest::testRevertInsufficientShares()
+    ├─ [0] VM::startPrank(0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return]
+    ├─ [24349] MockERC20::approve(StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], 100000000000000000000 [1e20])
+    │   ├─ emit Approval(owner: 0x000000000000000000000000000000000000bEEF, spender: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], value: 100000000000000000000 [1e20])
+    │   └─ ← [Return] true
+    ├─ [148585] StakePoolCore::deposit(100000000000000000000 [1e20], 0x000000000000000000000000000000000000bEEF)
+    │   ├─ [30244] MockERC20::transferFrom(0x000000000000000000000000000000000000bEEF, StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], 100000000000000000000 [1e20])
+    │   │   ├─ emit Transfer(from: 0x000000000000000000000000000000000000bEEF, to: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], value: 100000000000000000000 [1e20])
+    │   │   └─ ← [Return] true
+    │   ├─ [46526] MockAquaMON::mintShares(0x000000000000000000000000000000000000bEEF, 100000000000000000000 [1e20])
+    │   │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: 0x000000000000000000000000000000000000bEEF, value: 100000000000000000000 [1e20])
+    │   │   └─ ← [Return]
+    │   ├─ emit Deposited(user: 0x000000000000000000000000000000000000bEEF, assets: 100000000000000000000 [1e20], shares: 100000000000000000000 [1e20], to: 0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return] 100000000000000000000 [1e20]
+    ├─ [0] VM::stopPrank()
+    │   └─ ← [Return]
+    ├─ [0] VM::startPrank(0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return]
+    ├─ [0] VM::expectRevert(custom error 0xc31eb0e0: 3999656700000000000000000000000000000000000000000000000000000000)
+    │   └─ ← [Return]
+    ├─ [6233] StakePoolCore::redeem(200000000000000000000 [2e20], 0x000000000000000000000000000000000000bEEF, 0x000000000000000000000000000000000000bEEF)
+    │   ├─ [758] MockAquaMON::sharesOf(0x000000000000000000000000000000000000bEEF) [staticcall]
+    │   │   └─ ← [Return] 100000000000000000000 [1e20]
+    │   └─ ← [Revert] InsufficientShares()
+    ├─ [0] VM::stopPrank()
+    │   └─ ← [Return]
+    └─ ← [Return]
+
+[PASS] testRevertNotOwnerOfShares() (gas: 172552)
+Traces:
+  [195252] StakePoolCoreTest::testRevertNotOwnerOfShares()
+    ├─ [0] VM::startPrank(0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return]
+    ├─ [24349] MockERC20::approve(StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], 100000000000000000000 [1e20])
+    │   ├─ emit Approval(owner: 0x000000000000000000000000000000000000bEEF, spender: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], value: 100000000000000000000 [1e20])
+    │   └─ ← [Return] true
+    ├─ [148585] StakePoolCore::deposit(100000000000000000000 [1e20], 0x000000000000000000000000000000000000bEEF)
+    │   ├─ [30244] MockERC20::transferFrom(0x000000000000000000000000000000000000bEEF, StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], 100000000000000000000 [1e20])
+    │   │   ├─ emit Transfer(from: 0x000000000000000000000000000000000000bEEF, to: StakePoolCore: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a], value: 100000000000000000000 [1e20])
+    │   │   └─ ← [Return] true
+    │   ├─ [46526] MockAquaMON::mintShares(0x000000000000000000000000000000000000bEEF, 100000000000000000000 [1e20])
+    │   │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: 0x000000000000000000000000000000000000bEEF, value: 100000000000000000000 [1e20])
+    │   │   └─ ← [Return]
+    │   ├─ emit Deposited(user: 0x000000000000000000000000000000000000bEEF, assets: 100000000000000000000 [1e20], shares: 100000000000000000000 [1e20], to: 0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return] 100000000000000000000 [1e20]
+    ├─ [0] VM::stopPrank()
+    │   └─ ← [Return]
+    ├─ [0] VM::prank(0x000000000000000000000000000000000000F00D)
+    │   └─ ← [Return]
+    ├─ [0] VM::expectRevert(custom error 0xc31eb0e0: c909066300000000000000000000000000000000000000000000000000000000)
+    │   └─ ← [Return]
+    ├─ [4943] StakePoolCore::redeem(10000000000000000000 [1e19], 0x000000000000000000000000000000000000F00D, 0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Revert] NotOwnerOfShares()
+    └─ ← [Return]
+
+[PASS] testRevertsOnZeroAmounts() (gas: 46748)
+Traces:
+  [46748] StakePoolCoreTest::testRevertsOnZeroAmounts()
+    ├─ [0] VM::expectRevert(custom error 0xc31eb0e0: * )
+    │   └─ ← [Return]
+    ├─ [8017] StakePoolCore::deposit(0, 0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Revert] ZeroAmount()
+    ├─ [0] VM::expectRevert(custom error 0xc31eb0e0: * )
+    │   └─ ← [Return]
+    ├─ [8239] StakePoolCore::mint(0, 0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Revert] ZeroAmount()
+    ├─ [0] VM::expectRevert(custom error 0xc31eb0e0: * )
+    │   └─ ← [Return]
+    ├─ [8402] StakePoolCore::redeem(0, 0x000000000000000000000000000000000000bEEF, 0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Revert] ZeroAmount()
+    ├─ [0] VM::expectRevert(custom error 0xc31eb0e0: * )
+    │   └─ ← [Return]
+    ├─ [8375] StakePoolCore::withdraw(0, 0x000000000000000000000000000000000000bEEF, 0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Revert] ZeroAmount()
+    └─ ← [Return]
+
+[PASS] testSetTrustedForwarder() (gas: 46866)
+Traces:
+  [46866] StakePoolCoreTest::testSetTrustedForwarder()
+    ├─ [37362] StakePoolCore::setConfig(MockAquaMON: [0x2e234DAe75C793f67A35089C9d99245E1C58470b], 0x000000000000000000000000000000000000fafa, 2000000000000000000 [2e18])
+    │   ├─ emit ParamsUpdated(key: 0x6171756100000000000000000000000000000000000000000000000000000000, oldVal: 263400868551549723330807389252719309078400616203 [2.634e47], newVal: 263400868551549723330807389252719309078400616203 [2.634e47])
+    │   ├─ emit ParamsUpdated(key: 0x666f727761726465720000000000000000000000000000000000000000000000, oldVal: 0, newVal: 64250 [6.425e4])
+    │   ├─ emit ParamsUpdated(key: 0x64726970506572426c6f636b0000000000000000000000000000000000000000, oldVal: 1000000000000000000 [1e18], newVal: 2000000000000000000 [2e18])
+    │   └─ ← [Return]
+    ├─ [829] StakePoolCore::trustedForwarder() [staticcall]
+    │   └─ ← [Return] 0x000000000000000000000000000000000000fafa
+    └─ ← [Return]
+
+Suite result: ok. 17 passed; 0 failed; 0 skipped; finished in 32.52ms (33.16ms CPU time)
+
+Ran 1 test suite in 37.66ms (32.52ms CPU time): 17 tests passed, 0 failed, 0 skipped (17 total tests)

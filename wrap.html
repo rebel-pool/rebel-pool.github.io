@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Wrap | Rebel Pool</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="masthead">
+  <div class="masthead-title">REBEL POOL</div>
+  <div class="masthead-copyright">&copy; 2025 Rebel Pool Cooperative. All Rights Reserved.</div>
+  <div class="masthead-datebar"></div>
+  <div class="masthead-date">
+    <span id="masthead-date"></span>
+    <span id="masthead-clock"></span>
+  </div>
+  <div class="masthead-datebar"></div>
+</div>
+<nav id="topnav" style="display: flex; align-items: center;">
+  <a href="index.html">Home</a>
+  <a href="stake.html">Stake</a>
+  <a href="withdraw.html">Withdraw</a>
+  <a href="wrap.html" class="active">Wrap / Unwrap</a>
+  <a href="stats.html" >Pool Stats</a>
+  <a href="truth.html">Code Truth</a>
+  <div style="margin-left:auto; display:flex; align-items:center; gap:6px; padding-right: 12px;">
+    <label for="network-select" style="font-size:13px;">Network:</label>
+    <select id="network-select" style="font-size:14px; padding:2px 6px; margin-left:6px;"></select>
+  </div>
+</nav>
+
+<div id="container">
+<div id="sidebar">
+  <a href="faq.html">FAQ</a>
+  <a href="validators.html">Validators</a>
+  <a href="contact.html">Contact</a>
+  <a href="about.html">About</a>
+</div>
+  <div id="main">
+    <div class="main-card">
+      <h2>Wrap & Unwrap: stMON <=> wstMON</h2>
+      <div id="wallet-ui">
+        <button id="connect-btn">Connect Wallet</button>
+        <div id="wallet-address" style="margin:10px 0 6px 0; display:none;"></div>
+        <div style="font-size:0.98em;margin-bottom:10px;">
+          <b>stMON:</b> <span id="balance-stmon">–</span><br>
+          <b>wstMON:</b> <span id="balance-wstmon">–</span>
+        </div>
+        <hr>
+        <div style="margin-bottom: 12px;">
+          <b>Wrap stMON to wstMON (ArcMON)</b>
+          <div>
+            <input type="number" min="0" step="0.0001" id="wrap-wstmon-amount" placeholder="Amount to wrap (stMON)">
+            <button id="wrap-max" style="margin-left:6px;">MAX</button>
+            <button id="wrap-wstmon-btn" style="margin-left:10px;">Wrap</button>
+          </div>
+          <div id="wrap-wstmon-status" style="font-size:0.96em; margin-top:3px; color:#666;"></div>
+        </div>
+        <hr>
+        <div style="margin-bottom: 10px;">
+          <b>Unwrap wstMON to stMON</b>
+          <div>
+            <input type="number" min="0" step="0.0001" id="unwrap-wstmon-amount" placeholder="Amount to unwrap (wstMON)">
+            <button id="unwrap-max" style="margin-left:6px;">MAX</button>
+            <button id="unwrap-wstmon-btn" style="margin-left:10px;">Unwrap</button>
+          </div>
+          <div id="unwrap-wstmon-status" style="font-size:0.96em; margin-top:3px; color:#666;"></div>
+        </div>
+        <hr>
+        <div>
+          <button onclick="addWstmonToMetaMask()">Add wstMON to Wallet</button>
+        </div>
+        <div style="margin-top:10px;font-size:0.98em;">
+          <span>Exchange Rate: <span id="exchange-rate">–</span> stMON per wstMON</span>
+          <span title="wstMON is a non-rebasing wrapper over stMON."> ℹ️</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<footer>
+  © 1994–2025 Rebel Pool. Best viewed in Mosaic 2.0. Staking involves risk.
+</footer>
+<div id="wrap-modal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <div id="wrap-modal-msg" style="padding:20px; font-size:1.05em;"></div>
+  </div>
+</div>
+<style>
+  .modal { position:fixed; left:0; top:0; width:100vw; height:100vh;
+           background:rgba(0,0,0,0.36); display:flex; align-items:center; justify-content:center; z-index:2000; }
+  .modal-content { background:#fff; border-radius:7px; min-width:300px; max-width:95vw; box-shadow:0 6px 32px #4448; }
+</style>
+<script>
+function updateMastheadDateAndClock() {
+  const d = new Date();
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const formattedDate = d.toLocaleDateString('en-US', options).toUpperCase();
+  document.getElementById('masthead-date').textContent = formattedDate;
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  const ss = String(d.getSeconds()).padStart(2, '0');
+  document.getElementById('masthead-clock').textContent = `${hh}:${mm}:${ss}`;
+}
+updateMastheadDateAndClock();
+setInterval(updateMastheadDateAndClock, 1000);
+</script>
+<script src="js/chain.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+<script src="js/wrap.js"></script>
+</body>
+</html>

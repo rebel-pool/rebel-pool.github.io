@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>About | Rebel Pool</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="masthead">
+  <div class="masthead-title">REBEL POOL</div>
+  <div class="masthead-copyright">&copy; 2025 Rebel Pool Cooperative. All Rights Reserved.</div>
+  <div class="masthead-datebar"></div>
+  <div class="masthead-date">
+    <span id="masthead-date"></span>
+    <span id="masthead-clock"></span>
+  </div>
+  <div class="masthead-datebar"></div>
+</div>
+
+<nav id="topnav">
+  <a href="index.html">Home</a>
+  <a href="stake.html">Stake</a>
+  <a href="withdraw.html">Withdraw</a>
+  <a href="wrap.html">Wrap / Unwrap</a>
+  <a href="stats.html">Pool Stats</a>
+  <a href="truth.html">Code Truth</a>
+</nav>
+
+<div id="container">
+  <div id="sidebar">
+    <a href="faq.html">FAQ</a>
+    <a href="validators.html">Validators</a>
+    <a href="contact.html">Contact</a>
+    <a href="about.html" class="active">About</a>
+  </div>
+
+  <div id="main">
+    <h2>About Rebel Pool</h2>
+    <p>
+      Rebel Pool is built by coders, bootstrapped, and run for <b>stakers first</b>. No outside investors, no fee
+      switches waiting to flip, no marketing burn. Just transparent contracts and honest math.
+    </p>
+
+    <h3 id="vc-red-flags">Why “Pool raises $20m” is a Red Flag</h3>
+    <p>
+      Venture investors don’t buy yield, they demand it. When a protocol raises outside money, future cashflows are
+      needs to hit venture-style returns. <br> That return has to come from somewhere and there is only from <b>staker yield!</b>.
+    </p>
+    <ul>
+      <li><b>Liquidation preferences</b> (e.g., 1–2×): investors get paid first, stakers later.</li>
+      <li><b>Governance capture</b>: fee switches, token mints, and treasury taps become “strategic options.”</li>
+      <li><b>Marketing burn</b>: Eye-candy and Hype don’t compound your principal.</li>
+      <li><b>Roadmap drift</b>: growth-at-all-costs > sustainable APY.</li>
+    </ul>
+    <p><i><b>Signal, not noise:</b></i> fundraise headlines rarely mean “more yield for stakers.” Treat them as a caution sign.</p>
+
+    <h3 id="code-trust">Code Trust: The Truth Is in the Code</h3>
+    <p>
+      Our contracts are open and simple to verify:
+      <br>• <b>StakePoolCore</b> holds the underlying (<b>WMON</b>), tracks <i>assets</i>, <i>shares</i>, and the <i>index</i>.
+      <br>• <b>AquaMON (stMON)</b> is the rebasing facade over shares.
+      <br>• <b>ArcMON (wstMON)</b> is a non-rebasing wrapper over Aqua for DeFi/governance.
+    </p>
+    <p>
+      No hidden waterfalls. No backdoors. If something matters, it’s on-chain and reviewable.
+    </p>
+
+    <h3 id="eye-candy">Eye-Candy Doesn’t Raise Returns</h3>
+    <p>
+      Animated gradients don’t create APR. They cost time and money. We keep a straightforward UI so resources go where
+      they should—into safe, efficient contracts and better staking mechanics.
+    </p>
+
+
+    <h3 id="disclaimer">Disclaimer</h3>
+    <p>
+      Rebel Pool is software. Staking, wrapping, and unwrapping involve risk. <b>Always verify addresses and code</b>
+      before interacting. No promises of future returns; performance can vary.
+    </p>
+  </div>
+</div>
+
+
+
+
+<div>
+<footer>
+  © 1994–2025 Rebel Pool. Best viewed in Mosaic 2.0. Staking involves risk.
+</footer>
+</div>  
+
+<script>
+  function updateMastheadDateAndClock() {
+    const d = new Date();
+    const options = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+    document.getElementById('masthead-date').textContent = d.toLocaleDateString('en-US', options).toUpperCase();
+    const hh = String(d.getHours()).padStart(2,'0');
+    const mm = String(d.getMinutes()).padStart(2,'0');
+    const ss = String(d.getSeconds()).padStart(2,'0');
+    document.getElementById('masthead-clock').textContent = `${hh}:${mm}:${ss}`;
+  }
+  updateMastheadDateAndClock();
+  setInterval(updateMastheadDateAndClock, 1000);
+</script>
+</body>
+</html>

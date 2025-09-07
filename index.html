@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Rebel Pool Interactive Edition</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="masthead">
+  <div class="masthead-title">REBEL POOL</div>
+  <div class="masthead-copyright">&copy; 2025 Rebel Pool Cooperative. All Rights Reserved.</div>
+  <div class="masthead-datebar"></div>
+  <div class="masthead-date">
+    <span id="masthead-date"></span>
+    <span id="masthead-clock"></span>
+  </div>
+  <div class="masthead-datebar"></div>
+</div>
+<nav id="topnav" style="display: flex; align-items: center;">
+  <a href="index.html" class="active">Home</a>
+  <a href="stake.html">Stake</a>
+  <a href="withdraw.html">Withdraw</a>
+  <a href="wrap.html">Wrap / Unwrap</a>
+  <a href="stats.html">Pool Stats</a>
+  <a href="truth.html">Code Truth</a>
+  <div style="margin-left:auto; display:flex; align-items:center; gap:6px; padding-right: 12px;">
+    <label for="network-select" style="font-size:13px;">Network:</label>
+    <select id="network-select" style="font-size:14px; padding:2px 6px; margin-left:6px;"></select>
+  </div>
+</nav>
+<div id="container">
+  <div id="sidebar">
+    <a href="faq.html">FAQ</a>
+    <a href="validators.html">Validators</a>
+    <a href="contact.html">Contact</a>
+    <a href="about.html">About</a>
+  </div>
+  <div id="main">
+    <div class="main-cards">
+      <div class="main-card card-topleft">
+        <h2>Bootstraped Coder Made = No VC Drain</h2>
+        <p>
+          <strong>No Pre-Release Investors means 100% of returns go to stakers.</strong><br>
+          The math is simple: when there are investors, especially VCs, they will demand to optimize profits for themselfs. It’s not evil, it’s just their model. But it means yield flows up, not back. 
+        </p>
+        <p>
+          <b>Being bootstrapped</b> means <b>Stakers First</b>. Advanced contracts, full transparency, simple design, no hype. Just the best returns, straight to the people who stake.  
+        </p>
+        <p>
+          <b>No Eye-candy</b> means <b>focus on whats important!</b> returns, and optimization, spending time on buetification will never create more returns for the stakers, only optimum code can do that!  
+        </p>        
+      </div>
+      <div class="main-card card-topright">
+        <h2>Chain Stats - On Load</h2>
+        <table id="chain-stats-table">
+          <tr><td>Latest Block</td><td id="latest-block">–</td></tr>
+          <tr><td>Block Timestamp</td><td id="block-timestamp">–</td></tr>
+        </table>
+        <h2>Pool Stats</h2>
+        <table>
+          <tr><td>Total Value Staked</td><td class="stat-num" id="stat-tvs">–</td></tr>
+          <tr><td>Index (<span id="index-label">stMON/MON</span>)</td><td class="stat-num" id="stat-index">–</td></tr>
+          <tr><td>Estimated APR</td><td class="stat-num" id="stat-apr">9.8%</td></tr>
+          <tr><td>Validators</td><td class="stat-num" id="stat-vals">To be added</td></tr>
+          <tr><td>Last Rebase</td><td class="stat-num" id="stat-rebase">–</td></tr>
+        </table>
+      </div>
+      <div class="main-card card-bottomleft">
+        <h2>How It Works</h2>
+        <ol id="index-flow-list">
+        </ol>
+        <br>
+        <p>
+          <center><b>The Truth is in the Code!</b></center> 
+          <center> 
+            <a href="truth.html" class="btn stake-btn">[ SEE THE TRUTH ]</a>
+          </center>
+        </p> 
+      </div>
+      <div class="main-card card-bottomright">
+        <h2>Why Rebel Pool?</h2>
+        <p>
+          <strong>No VC Fees. No Hidden Incentives. All rewards to stakers.</strong>
+        </p>
+        <p>
+          Centralized exchanges and VC pools take a slice of your yield. At Rebel Pool, every <span id="native-sym-txt">MON</span> works for you. Simple code, open stats, no outside investors.
+        </p>
+        <p style="margin-top: 24px;">
+          <center>        
+            <a href="stake.html" class="btn stake-btn">[ STAKE NOW ]</a>
+          </center>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>  
+<footer>
+  © 1994–2025 Rebel Pool. Best viewed in Mosaic 2.0. Staking involves risk.
+</footer>
+<script src="js/chain.js"></script>
+<script>
+function updateMastheadDateAndClock() {
+  const d = new Date();
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const formattedDate = d.toLocaleDateString('en-US', options).toUpperCase();
+  document.getElementById('masthead-date').textContent = formattedDate;
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  const ss = String(d.getSeconds()).padStart(2, '0');
+  document.getElementById('masthead-clock').textContent = `${hh}:${mm}:${ss}`;
+}
+updateMastheadDateAndClock();
+setInterval(updateMastheadDateAndClock, 1000);
+
+if (window.renderNetworkSelector) renderNetworkSelector("network-select", ()=>location.reload());
+
+window.addEventListener("DOMContentLoaded", function() {
+  const cfg = window.getNetConfig ? getNetConfig() : {};
+  const NATIVE = cfg.coin?.native?.name || "Monad";
+  const NATIVE_SYM = cfg.coin?.native?.symbol || "MON";
+  const WRAPPED = cfg.coin?.wrapped?.name || "Wrapped Monad";
+  const WRAPPED_SYM = cfg.coin?.wrapped?.symbol || "WMON";
+  const AQUA = cfg.coin?.aqua?.name || "AquaMON";
+  const AQUA_SYM = cfg.coin?.aqua?.symbol || "stMON";
+  const ARC = cfg.coin?.arc?.name || "ArcMON";
+  const ARC_SYM = cfg.coin?.arc?.symbol || "wstMON";
+
+  document.getElementById("index-label").textContent = `${AQUA_SYM}/${NATIVE_SYM}`;
+
+  document.getElementById("index-flow-list").innerHTML = `
+    <li>Deposit ${NATIVE_SYM} → receive ${AQUA_SYM} (auto-rebasing).</li>
+    <li>Wrap into ${ARC_SYM} for DeFi &amp; governance.</li>
+    <li>Unstake via queue or trade instantly on DEX.</li>
+    <li>Stay liquid while earning yield.</li>
+  `;
+
+
+  document.getElementById("native-sym-txt").textContent = NATIVE_SYM;
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

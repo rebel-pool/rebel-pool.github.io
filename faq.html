@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>FAQ | Rebel Pool</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="masthead">
+  <div class="masthead-title">REBEL POOL</div>
+  <div class="masthead-copyright">&copy; 2025 Rebel Pool Cooperative. All Rights Reserved.</div>
+  <div class="masthead-datebar"></div>
+  <div class="masthead-date">
+    <span id="masthead-date"></span>
+    <span id="masthead-clock"></span>
+  </div>
+  <div class="masthead-datebar"></div>
+</div>
+<nav id="topnav" style="display: flex; align-items: center;">
+  <a href="index.html">Home</a>
+  <a href="stake.html">Stake</a>
+  <a href="withdraw.html">Withdraw</a>
+  <a href="wrap.html">Wrap / Unwrap</a>
+  <a href="stats.html">Pool Stats</a>
+  <a href="truth.html">Code Truth</a>
+  <div style="margin-left:auto; display:flex; align-items:center; gap:6px; padding-right: 12px;">
+    <label for="network-select" style="font-size:13px;">Network:</label>
+    <select id="network-select" style="font-size:14px; padding:2px 6px; margin-left:6px;"></select>
+  </div>
+</nav>
+<div id="container">
+  <div id="sidebar">
+    <a href="faq.html" class="active">FAQ</a>
+    <a href="validators.html">Validators</a>
+    <a href="contact.html">Contact</a>
+    <a href="about.html">About</a>
+  </div>
+  <div id="main">
+    <h2>FAQ — Rebel Pool</h2>
+    <div class="faq-item">
+      <h3>What is Rebel Pool?</h3>
+      <p id="faq-intro">
+        Rebel Pool is an open-source, anti-VC liquid staking protocol.<br>
+        No pre-sale, no outside investors, just code, contracts,
+        and 100% of yield going to stakers (except for infracosts).
+      </p>
+    </div>
+    <div class="faq-item">
+      <h3>What can I do here?</h3>
+      <p id="faq-whatdo"></p>
+    </div>
+    <div class="faq-item">
+      <h3>What are Aqua and Arc?</h3>
+      <p id="faq-tokens"></p>
+    </div>
+    <div class="faq-item">
+      <h3>How does the Stake-Flow look? (All happens in one Popup)</h3>
+      <ol id="faq-stakeflow"></ol>
+    </div>
+    <div class="faq-item">
+      <h3>How do I wrap/unwrap?</h3>
+      <ol id="faq-wrap"></ol>
+    </div>
+    <div class="faq-item">
+      <h3>How do gasless transactions work?</h3>
+      <p>
+        (Advanced) Sign a permit off-chain, a relayer submits the transaction for you. 
+        Powered by <b>EIP-2612</b> and <b>EIP-2771</b>. No wallet gas required if using a relay.
+      </p>
+    </div>
+    <div class="faq-item">
+      <h3>Is it safe?</h3>
+      <p>
+        All contracts are upgradeable, secured with strict access control, reentrancy guards, and are 100% open source. 
+        The UI shows current owner/admin and pause status. The truth is in the code.
+      </p>
+    </div>
+    <div class="faq-item">
+      <h3>Where do fees go?</h3>
+      <p>
+        Fee parameters are transparent and on-chain. 
+        All rewards go to stakers minus a visible, on-chain fee (settable only by the contract owner). No VC drain. Ever.
+      </p>
+    </div>
+    <div class="faq-item">
+      <h3>What happens if the contract is paused?</h3>
+      <p>
+        All actions are temporarily disabled for safety. 
+        Only the owner can pause/unpause. Admin actions are hidden for non-owners.
+      </p>
+    </div>
+    <div class="faq-item">
+      <h3>Where can I verify contracts and code?</h3>
+      <p>
+        All contract code and UI are on GitHub (<b>Rebel Pool</b> org and repo). 
+        You can view, or audit. The <b>Truth Page</b> shows current deployment addresses and links to code.
+      </p>
+    </div>
+    <div class="faq-item">
+      <h3>How do I check balances and yields?</h3>
+      <p id="faq-balances"></p>
+    </div>
+    <div class="faq-item">
+      <h3>What if I want to run my own validator?</h3>
+      <p>
+        Pool staking to validators will be supported when Monad opens up. Validator addresses can be updated/upgraded via the contract owner.
+      </p>
+    </div>
+    <div class="faq-item">
+      <h3>Is there a community or audit process?</h3>
+      <p>
+        Peer review is welcome. Most discussion is on Monad Discord. Code is “open kimono”, help yourself, open issues, or submit PRs.
+      </p>
+    </div>
+    <div class="faq-item">
+      <h3>Got more questions?</h3>
+      <p>
+        Check the <b>Truth Page</b>, read the code, or ping the Monad Discord. The code is the contract.
+      </p>
+    </div>
+  </div>
+</div>
+<footer>
+  © 1994–2025 Rebel Pool. Best viewed in Mosaic 2.0. Staking involves risk.
+</footer>
+<script src="js/chain.js"></script>
+<script>
+function updateMastheadDateAndClock() {
+  const d = new Date();
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const formattedDate = d.toLocaleDateString('en-US', options).toUpperCase();
+  document.getElementById('masthead-date').textContent = formattedDate;
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  const ss = String(d.getSeconds()).padStart(2, '0');
+  document.getElementById('masthead-clock').textContent = `${hh}:${mm}:${ss}`;
+}
+updateMastheadDateAndClock();
+setInterval(updateMastheadDateAndClock, 1000);
+
+if (window.renderNetworkSelector) renderNetworkSelector("network-select", ()=>location.reload());
+
+window.addEventListener("DOMContentLoaded", function() {
+  const cfg = window.getNetConfig ? getNetConfig() : {};
+  // Fallbacks for missing config
+  const NATIVE = cfg.coin?.native?.name || "Monad";
+  const NATIVE_SYM = cfg.coin?.native?.symbol || "MON";
+  const WRAPPED = cfg.coin?.wrapped?.name || "Wrapped Monad";
+  const WRAPPED_SYM = cfg.coin?.wrapped?.symbol || "WMON";
+  const AQUA = cfg.coin?.aqua?.name || "AquaMON";
+  const AQUA_SYM = cfg.coin?.aqua?.symbol || "stMON";
+  const ARC = cfg.coin?.arc?.name || "ArcMON";
+  const ARC_SYM = cfg.coin?.arc?.symbol || "wstMON";
+
+  document.getElementById("faq-whatdo").innerHTML =
+    `Stake your <b>${NATIVE_SYM}</b>, receive liquid staked tokens (<b>${AQUA}</b>, <b>${ARC}</b>), `
+    + `and optionally use gasless flows. Stake, wrap, unwrap, withdraw—track it all live and on-chain.`;
+
+  document.getElementById("faq-tokens").innerHTML =
+    `<b>${AQUA}</b> (<b>${AQUA_SYM}</b>) is a rebasing liquid staking token, your balance grows as the pool earns. `
+    + `<b>${ARC}</b> (<b>${ARC_SYM}</b>) is a non-rebasing wrapper for power users or DeFi integrations.`;
+
+  document.getElementById("faq-stakeflow").innerHTML = `
+    <li>Your ${NATIVE_SYM} gets wrapped to ${WRAPPED_SYM} (deposit native ${NATIVE_SYM}, get ${WRAPPED_SYM} 1:1)</li>
+    <li>Approve the Pool to use your ${WRAPPED_SYM}</li>
+    <li>Deposit into the Pool, get ${AQUA} (your staked/rebasing position)</li>
+    <li>Start Earning Yield!</li>
+  `;
+  document.getElementById("faq-wrap").innerHTML = `
+    <li>Approve ${ARC} to spend your ${AQUA}</li>
+    <li>Wrap: Call <code>wrap</code> to get ${ARC}</li>
+    <li>Unwrap: Call <code>unwrap</code> to convert back to ${AQUA}</li>
+  `;
+  document.getElementById("faq-balances").innerHTML =
+    `Dashboard shows your holdings (${WRAPPED_SYM}, ${AQUA}, ${ARC}) and live index/yield stats. `
+    + `Or use CLI with <code>cast</code> for power users.`;
+});
+</script>
+</body>
+</html>

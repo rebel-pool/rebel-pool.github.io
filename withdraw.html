@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Withdraw | Rebel Pool</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="masthead">
+    <div class="masthead-title">REBEL POOL</div>
+    <div class="masthead-copyright">&copy; 2025 Rebel Pool Cooperative. All Rights Reserved.</div>
+    <div class="masthead-datebar"></div>
+    <div class="masthead-date">
+      <span id="masthead-date"></span>
+      <span id="masthead-clock"></span>
+    </div>
+    <div class="masthead-datebar"></div>
+  </div>
+
+  <nav id="topnav" style="display: flex; align-items: center;">
+    <a href="index.html">Home</a>
+    <a href="stake.html">Stake</a>
+    <a href="withdraw.html" class="active">Withdraw</a>
+    <a href="wrap.html">Wrap / Unwrap</a>
+    <a href="stats.html">Pool Stats</a>
+    <a href="truth.html">Code Truth</a>
+    <div style="margin-left:auto; display:flex; align-items:center; gap:6px; padding-right: 12px;">
+      <label for="network-select" style="font-size:13px;">Network:</label>
+      <select id="network-select" style="font-size:14px; padding:2px 6px; margin-left:6px;"></select>
+    </div>
+  </nav>
+
+  <div id="container">
+    <div id="sidebar">
+      <a href="faq.html">FAQ</a>
+      <a href="validators.html">Validators</a>
+      <a href="contact.html">Contact</a>
+      <a href="about.html">About</a>
+    </div>
+    <div id="main">
+      <div class="main-card">
+        <h2>Withdraw</h2>
+        <div id="wallet-ui">
+          <button id="connect-btn">Connect Wallet</button>
+          <div id="wallet-address" style="margin:10px 0 12px 0; display:none;"></div>
+          <div style="font-size:0.98em;margin-bottom:14px;">
+            <b id="lbl-native">MON:</b> <span id="balance-mon">–</span><br>
+            <b id="lbl-aqua">stMON:</b> <span id="balance-stmon">–</span><br>
+            <b id="lbl-arc">wstMON:</b> <span id="balance-wstmon">–</span>
+          </div>
+        </div>
+
+        <div class="card" style="padding:14px; border:1px solid #ccc; border-radius:8px;">
+          <h3 style="margin-top:0;">
+            Withdraw <span id="hdr-aqua">stMON</span> → <span id="hdr-native">MON</span>
+          </h3>
+          <div style="font-size:0.92em; margin-bottom:8px;">
+            Burn <span id="desc-aqua">Aqua (stMON)</span> and receive native <span id="desc-native">MON</span>. We unwrap under the hood; you don’t need to handle <span id="desc-wrapped">WMON</span>.
+          </div>
+          <div>
+            <input type="number" min="0" step="0.0001" id="withdraw-assets" placeholder="Amount to withdraw (MON)">
+            <button id="withdraw-max" type="button" style="margin-left:6px;">MAX</button>
+            <button id="withdraw-btn" type="button" style="margin-left:10px;">Withdraw</button>
+          </div>
+          <div id="preview-line" style="font-size:0.92em; margin-top:8px; color:#333;"></div>
+          <div id="withdraw-status" style="font-size:0.96em;margin-top:6px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>© 1994–2025 Rebel Pool. Best viewed in Mosaic 2.0. Staking involves risk.</footer>
+  <div id="withdraw-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <div id="withdraw-modal-msg" style="padding:20px; font-size:1.05em;"></div>
+    </div>
+  </div>
+  <style>
+    .modal { position:fixed; left:0; top:0; width:100vw; height:100vh;
+      background:rgba(0,0,0,0.36); display:flex; align-items:center; justify-content:center; z-index:2000; }
+    .modal-content { background:#fff; border-radius:7px; min-width:300px; max-width:95vw; box-shadow:0 6px 32px #4448; }
+  </style>
+  <script src="js/chain.js"></script>
+  <script>
+    function updateMastheadDateAndClock() {
+      const d = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const formattedDate = d.toLocaleDateString('en-US', options).toUpperCase();
+      document.getElementById('masthead-date').textContent = formattedDate;
+      const hh = String(d.getHours()).padStart(2, '0');
+      const mm = String(d.getMinutes()).padStart(2, '0');
+      const ss = String(d.getSeconds()).padStart(2, '0');
+      document.getElementById('masthead-clock').textContent = `${hh}:${mm}:${ss}`;
+    }
+    updateMastheadDateAndClock();
+    setInterval(updateMastheadDateAndClock, 1000);
+
+    window.addEventListener("DOMContentLoaded", function() {
+      const cfg = window.getNetConfig ? getNetConfig() : {};
+      const NATIVE = cfg.coin?.native?.name || "Monad";
+      const NATIVE_SYM = cfg.coin?.native?.symbol || "MON";
+      const WRAPPED = cfg.coin?.wrapped?.name || "Wrapped Monad";
+      const WRAPPED_SYM = cfg.coin?.wrapped?.symbol || "WMON";
+      const AQUA = cfg.coin?.aqua?.name || "AquaMON";
+      const AQUA_SYM = cfg.coin?.aqua?.symbol || "stMON";
+      const ARC = cfg.coin?.arc?.name || "ArcMON";
+      const ARC_SYM = cfg.coin?.arc?.symbol || "wstMON";
+
+      document.getElementById("lbl-native").textContent = NATIVE_SYM + ":";
+      document.getElementById("lbl-aqua").textContent   = AQUA_SYM + ":";
+      document.getElementById("lbl-arc").textContent    = ARC_SYM + ":";
+
+      document.getElementById("hdr-aqua").textContent  = AQUA_SYM;
+      document.getElementById("hdr-native").textContent = NATIVE_SYM;
+      document.getElementById("desc-aqua").textContent = `${AQUA} (${AQUA_SYM})`;
+      document.getElementById("desc-native").textContent = NATIVE_SYM;
+      document.getElementById("desc-wrapped").textContent = WRAPPED_SYM;
+      
+      document.getElementById("withdraw-assets").placeholder = `Amount to withdraw (${NATIVE_SYM})`;
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="js/withdraw.js"></script>
+</body>
+</html>

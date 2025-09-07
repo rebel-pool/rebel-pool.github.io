@@ -1,0 +1,305 @@
+/* =========================================================
+   REBEL POOL — Solaris/Motif UI (Refactored + Responsive)
+   - Preserves existing look/feel
+   - Cleans duplicates / dead rules
+   - Adds mobile behavior without HTML changes
+   =======================================================*/
+
+/* ---------- Theme Tokens (simple constants) ---------- */
+:root{
+  --ink:#000;
+  --ink-muted:#333;
+  --bg:#bfbfbf;           /* Motif gray */
+  --panel:#dcdcdc;
+  --panel-2:#c0c0c0;
+  --border-hi:#808080;
+  --border-lo:#bbb;
+  --paper:#fff;
+  --brand:#181818;
+  --ok:#053408;
+}
+
+/* ---------- Base ---------- */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body{
+  margin:0; padding:0;
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: Helvetica, Arial, sans-serif;
+  font-size:13px;
+  line-height:1.4;
+    scrollbar-gutter: stable;
+}
+
+/* ---------- WSJ-Style Masthead ---------- */
+.masthead{
+  background: var(--paper);
+  border: 1px solid #444;
+  text-align:center;
+}
+.masthead-title{
+  font-family:"Times New Roman", Times, serif;
+  font-size:3em; font-weight:bold; letter-spacing:.06em;
+  color:#181818; text-transform:uppercase;
+  padding:12px 0 0 0;
+}
+.masthead-copyright{
+  font-family:"Times New Roman", Times, serif;
+  font-size:1em; color:#444; font-style:italic; margin:0;
+}
+.masthead-datebar{ border-top:1px solid #888; }
+.masthead-date{
+  font-family:"IBM Plex Mono","Courier New",monospace,"Times New Roman",serif;
+  font-size:1em; color:#000; padding:5px 0 1px 0; letter-spacing:.1em;
+  text-transform:uppercase; display:flex; justify-content:center; gap:0;
+}
+#masthead-clock{
+  font-family:"IBM Plex Mono","Courier New",monospace;
+  font-size:1em; color:#010a01; letter-spacing:.04em; padding-left:12px;
+}
+
+/* ---------- Top Nav (tabs) ---------- */
+/* Works for either <nav> or <nav id="topnav"> */
+nav, #topnav{
+  display:flex; align-items:center; gap:2px;
+  background-color: var(--bg);
+  padding:2px 4px 0 4px;
+  border-bottom:2px solid var(--border-hi);
+  /* mobile: horizontal scroll if needed */
+  overflow-x:auto; white-space:nowrap; -webkit-overflow-scrolling: touch;
+}
+nav a, #topnav a{
+  display:inline-block;
+  padding:6px 14px; margin-right:2px;
+  text-decoration:none; color:var(--ink); font-weight:bold;
+  background-color:#dcdcdc;
+  border-top:2px solid #fff; border-left:2px solid #fff;
+  border-right:2px solid var(--border-hi); border-bottom:2px solid var(--border-hi);
+}
+nav a.active, #topnav a.active{
+  background-color:#fff;
+  border-top:2px solid var(--border-hi); border-left:2px solid var(--border-hi);
+  border-right:2px solid #fff; border-bottom:2px solid #fff;
+}
+
+/* ---------- Layout Shell ---------- */
+#container{
+  display:grid; grid-template-columns:190px 1fr;
+  gap:16px; padding:10px; min-height:600px;
+  min-height: 56vh;
+}
+#sidebar{
+  width:100%; /* grid gives width */
+  background-color: var(--panel);
+  border-right:2px solid var(--border-hi);
+  padding:6px;
+}
+#sidebar a{
+  display:block; margin:6px 0; padding:6px; text-decoration:none; color:var(--ink);
+  background-color: var(--panel-2);
+  border-top:2px solid #fff; border-left:2px solid #fff;
+  border-right:2px solid var(--border-hi); border-bottom:2px solid var(--border-hi);
+  font-size:13px;
+}
+
+#sidebar a.active {
+  background-color:#fff;
+  border-top:2px solid var(--border-hi); border-left:2px solid var(--border-hi);
+  border-right:2px solid #fff; border-bottom:2px solid #fff;
+}
+
+
+#sidebar a:hover{ background-color:#e0e0e0; }
+
+#main{
+  background-color: var(--paper);
+  padding:16px;
+  font-size:13px;
+    display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 48px;
+}
+
+#main h2, #main h3{
+  font-family:"Times New Roman", serif;
+  font-weight:bold; margin:12px 0 8px 0;
+}
+
+/* ---------- Home “main-cards” grid ---------- */
+.main-cards{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  grid-auto-rows:auto;
+  gap:4px;
+  max-width:1000px; margin:0 auto; padding:0 0 2px 0;
+}
+.main-card{
+  background:var(--paper);
+  border:1.5px solid var(--border-lo);
+  padding:20px 22px 16px 22px;
+  font-size:1em;
+  box-shadow:0 4px 16px rgba(0,0,0,.09), 0 1.5px 0 rgba(0,0,0,.06);
+    width: 100%;
+  max-width: 480px;   /* Or 560px if you prefer the wider look everywhere */
+  margin: 0 auto;
+}
+.main-card h2{
+  font-size:1.18em; font-family:"Times New Roman", Times, serif;
+  font-weight:bold; margin:0 0 13px 0; letter-spacing:.03em;
+}
+.main-card table{
+  width:100%; font-size:1em; border-collapse:collapse;
+}
+.main-card table td{
+  border:1px solid #ccc; padding:5px 10px;
+  font-family: monospace,"IBM Plex Mono",Courier,Arial,sans-serif;
+  background:#f8f8f8;
+}
+.stat-num{
+  font-family: monospace,"IBM Plex Mono",Courier,Arial,sans-serif;
+  color:var(--ok); font-weight:bold;
+}
+.stake-btn{
+  display:inline-block;
+  font-family: monospace,"IBM Plex Mono",Courier,Arial,sans-serif;
+  font-size:1em; font-weight:bold; letter-spacing:.04em;
+  color:#fff; background:var(--brand);
+  border:1.5px solid #888; padding:9px 26px; margin-top:4px;
+  text-decoration:none; cursor:pointer;
+  transition: background .13s, color .13s;
+}
+.stake-btn:hover{ background:#008b23; color:#fff; border-color:#222; }
+
+/* ---------- Tables in #main ---------- */
+#main table{ border-collapse:collapse; margin:8px 0; font-size:13px; width:100%; }
+#main table td{ border:1px solid #696868; padding:4px 8px; }
+
+/* ---------- Footer ---------- */
+footer{
+  background-color: var(--panel);
+  border-top:2px solid var(--border-hi);
+  text-align:left; font-size:12px; padding:4px 8px;
+  display:flex; justify-content:center;
+}
+#status-left{ color:#000; }
+#status-right{ color:#000; font-family:monospace; }
+
+/* ---------- Modal (single clean implementation) ---------- */
+.modal{
+  position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+  background: rgba(0,0,0,.36); z-index:2000;
+}
+.modal-content{
+  background:#fff; border-radius:9px; border:1.5px solid #ccc;
+  min-width:320px; max-width:95vw; padding:22px 18px;
+  box-shadow:0 6px 32px #4448;
+}
+#withdraw-modal button, #stake-modal button{
+  margin-top:12px; background:#e5e7eb; border:1px solid #b8bfc6; border-radius:7px;
+  padding:7px 18px; font-size:1.02em; cursor:pointer; box-shadow:0 2px 6px #bbb3;
+  transition: background .16s;
+}
+#withdraw-modal button:hover, #stake-modal button:hover{ background:#d7e1fa; }
+
+/* ---------- Utilities (used across pages inc. Stats) ---------- */
+.cards{ display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:14px; }
+.card{ border:1px solid #222; padding:12px; background:#f6f6f6; }
+.card h3{ margin:0 0 8px; }
+.kv{ display:grid; grid-template-columns:180px 1fr; gap:8px 12px; align-items:center; }
+.kv .k{ color:var(--ink-muted); }
+.kv .v{ color:var(--ink); }
+.table{ width:100%; border-collapse:collapse; }
+.table th, .table td{ border:1px solid #333; padding:6px 8px; text-align:left; }
+.mono{ font-family: ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+.muted{ opacity:.8; }
+.center{ text-align:center; }
+.loading{ animation:pulse 1.4s infinite; }
+@keyframes pulse{ 0%{opacity:.5} 50%{opacity:.9} 100%{opacity:.5} }
+.linkish{ border:0; background:transparent; color:#1d4ed8; padding:0 2px; text-decoration:underline; cursor:pointer; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 980px){
+  .kv{ grid-template-columns:1fr; }
+  #container{ grid-template-columns:1fr; }
+  #sidebar{ position:sticky; top:0; z-index:1; }
+}
+@media (max-width: 860px){
+  .main-cards{ grid-template-columns:1fr; gap:18px; }
+}
+@media (max-width: 520px){
+  .masthead-title{ font-size:2.2em; }
+  .modal-content{ min-width:92vw; max-width:98vw; padding:14px; }
+}
+
+/* ===== Contact page layout (no images) ===== */
+.card {
+  background:#f8f8f8;
+  border:1.5px solid #bbb;
+  border-radius:7px;
+  margin:12px 0;
+}
+.card-header {
+  background:#e9e9e9;
+  border-bottom:1px solid #c8c8c8;
+  padding:8px 10px;
+  font-weight:bold;
+}
+.card-body { padding:12px; }
+
+/* top bar (wallet/address strip) */
+.bar {
+  display:flex; gap:8px; align-items:center; justify-content:flex-end;
+  margin:8px 0 12px;
+}
+
+/* simple form grid */
+.row { display:flex; gap:12px; align-items:flex-start; }
+.col { flex:1; min-width:0; }
+.spacer { flex:1; }
+.block-input {
+  width:100%; box-sizing:border-box;
+  padding:8px;
+  border:1px solid #808080;
+  border-radius:3px;
+  background:#fff;
+  font: 13px Helvetica, Arial, sans-serif;
+}
+label { font-size:12px; display:block; margin:4px 0 6px; }
+
+/* buttons */
+button {
+  border:1px solid #808080;
+  background:#d9d9d9;
+  padding:6px 12px;
+  border-radius:3px;
+  font-size:13px;
+  cursor:pointer;
+}
+button:hover { filter:brightness(0.97); }
+button.primary {
+  background:#cfd8dc;
+  border-color:#7a8a8f;
+  font-weight:600;
+}
+
+/* key/value list */
+.kv {
+  display:grid;
+  grid-template-columns: 140px 1fr;
+  column-gap:10px;
+  row-gap:6px;
+}
+.kv .k { font-weight:600; }
+.kv .v a { color:#00308f; text-decoration:none; }
+
+/* helpers */
+.muted { color:#777; }
+.note { font-size:12px; }
+
+/* responsive */
+@media (max-width: 780px){
+  .row { flex-direction:column; }
+  .kv  { grid-template-columns: 1fr; }
+}

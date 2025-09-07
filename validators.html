@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Validators | Rebel Pool</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="masthead">
+    <div class="masthead-title">REBEL POOL</div>
+    <div class="masthead-copyright">&copy; 2025 Rebel Pool Cooperative. All Rights Reserved.</div>
+    <div class="masthead-datebar"></div>
+    <div class="masthead-date">
+      <span id="masthead-date"></span>
+      <span id="masthead-clock"></span>
+    </div>
+    <div class="masthead-datebar"></div>
+  </div>
+
+  <nav id="topnav" style="display: flex; align-items: center;">
+    <a href="index.html">Home</a>
+    <a href="stake.html">Stake</a>
+    <a href="withdraw.html">Withdraw</a>
+    <a href="wrap.html">Wrap / Unwrap</a>
+    <a href="stats.html">Pool Stats</a>
+    <a href="truth.html">Code Truth</a>
+    <div style="margin-left:auto; display:flex; align-items:center; gap:6px; padding-right: 12px;">
+      <label for="network-select" style="font-size:13px;">Network:</label>
+      <select id="network-select" style="font-size:14px; padding:2px 6px; margin-left:6px;"></select>
+    </div>
+  </nav>
+
+  <div id="container">
+    <div id="sidebar">
+      <a href="faq.html">FAQ</a>
+      <a href="validators.html" class="active">Validators</a>
+      <a href="contact.html">Contact</a>
+      <a href="about.html">About</a>
+    </div>
+
+    <div id="main">
+      <h2>Validators & Nodes</h2>
+      
+      <div class="bar">
+        <button id="connect-btn" style="display:none;">Connect Wallet</button>
+        <div id="wallet-address" style="display:none;"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span id="network-overview-title">Network Overview</span>
+          <div class="right">
+            <button id="btn-refresh">Refresh</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="kv">
+            <div class="k">Reference RPC</div><div class="v" id="ref-rpc">—</div>
+            <div class="k">Latest Block</div><div class="v" id="ref-block">—</div>
+            <div class="k">Last Updated</div><div class="v" id="ref-updated">—</div>
+          </div>
+          <div class="note muted" style="margin-top:8px;">
+            <span id="validators-note">
+              Note: Validators may not be public yet. This page probes full node RPCs and shows sync/lag status. When validator APIs open, wiring will appear here.
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Node & RPC Probes</div>
+        <div class="card-body">
+          <div class="row">
+            <input id="inp-new-name" class="inline-input" type="text" placeholder="Name (e.g., Full Node #1)">
+            <input id="inp-new-rpc" class="inline-input" type="text" placeholder="RPC URL (https://...)">
+            <button id="btn-add-endpoint">Add</button>
+          </div>
+          <div class="table like-table" style="margin-top:12px;">
+            <div class="trow thead">
+              <div class="tcell">Name</div>
+              <div class="tcell">RPC URL</div>
+              <div class="tcell">Block</div>
+              <div class="tcell">Lag</div>
+              <div class="tcell">Latency</div>
+              <div class="tcell">Status</div>
+              <div class="tcell right">Actions</div>
+            </div>
+            <div id="probe-rows"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Pool ↔ Validators Wiring</div>
+        <div class="card-body">
+          <div class="kv">
+            <div class="k">Stake to Validator</div><div class="v" id="wiring-stake">Pending (not enabled)</div>
+            <div class="k">Pool Paused</div><div class="v" id="wiring-paused">—</div>
+          </div>
+          <div class="note muted" style="margin-top:8px;">
+            When validator interfaces are available, this section will show validator addresses and live status.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    © 1994–2025 Rebel Pool. Best viewed in Mosaic 2.0. Staking involves risk.
+  </footer>
+  
+  <script src="js/chain.js"></script>
+  <script>
+    function updateMastheadDateAndClock() {
+      const d = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const formattedDate = d.toLocaleDateString('en-US', options).toUpperCase();
+      document.getElementById('masthead-date').textContent = formattedDate;
+      const hh = String(d.getHours()).padStart(2, '0');
+      const mm = String(d.getMinutes()).padStart(2, '0');
+      const ss = String(d.getSeconds()).padStart(2, '0');
+      document.getElementById('masthead-clock').textContent = `${hh}:${mm}:${ss}`;
+    }
+    updateMastheadDateAndClock();
+    setInterval(updateMastheadDateAndClock, 1000);
+
+    window.addEventListener("DOMContentLoaded", function() {
+      if (window.renderNetworkSelector) renderNetworkSelector("network-select", ()=>location.reload());
+      const cfg = window.getNetConfig ? getNetConfig() : {};
+      const NETWORK_LABEL = cfg.label || "Unknown Network";
+      document.getElementById("network-overview-title").textContent = `Network Overview (${NETWORK_LABEL})`;
+      document.getElementById("ref-rpc").textContent = cfg.rpc || "—";
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="js/validators.js"></script>
+</body>
+</html>
