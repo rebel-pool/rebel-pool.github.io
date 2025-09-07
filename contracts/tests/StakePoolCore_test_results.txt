@@ -395,7 +395,8 @@ Traces:
     │   └─ ← [Return]
     ├─ [2741] StakePoolCore::setFeeParams(2100, 0, 0x000000000000000000000000000000000000cafE)
     │   └─ ← [Revert] fee too high
-    ├─ [0] VM::expectRevert(custom error 0xf28dceb3:  perf too high)
+    ├─ [0] VM::expectRevert(custom error 0xf28dceb3:  
+perf too high)
     │   └─ ← [Return]
     ├─ [2760] StakePoolCore::setFeeParams(0, 2100, 0x000000000000000000000000000000000000cafE)
     │   └─ ← [Revert] perf too high

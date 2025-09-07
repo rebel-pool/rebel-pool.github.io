@@ -89,6 +89,7 @@ async function getProvider() {
   }
   throw new Error("No RPC available");
 }
+
 async function checkAddress(provider, proxyAddr) {
   const res = { proxy: proxyAddr, hasCode:false, impl:null, implHasCode:false, admin:null, errors:[] };
   try {
@@ -141,6 +142,8 @@ function renderResult(containerId, label, r) {
   }
   byId(containerId).innerHTML = parts.join("\n");
 }
+
+
 async function verifyContract(key, containerId) {
   byId(containerId).innerHTML = `<span class="muted">Verifying on-chain…</span>`;
   try {
@@ -173,15 +176,31 @@ byId("verify-all").addEventListener("click", verifyAll);
 //============ TEST RESULT LOADER ============
 const TEST_FILES = Object.fromEntries(CONTRACTS.map(c => [c.key, c.testResults]));
 function summarizeForge(txt){
+  // Strip ANSI color codes just in case
+  txt = txt.replace(/\x1B\[[0-9;]*m/g, '');
   const lines = txt.split(/\r?\n/);
-  let passed=0, failed=0, warnings=0;
+
+  let passed = 0, failed = 0, warnings = 0;
+
   for (const ln of lines) {
-    if (/(\b|_)passed\b/i.test(ln))   passed++;
-    if (/\bfailed\b/i.test(ln))       failed++;
-    if (/\bwarning\b/i.test(ln))      warnings++;
+    // Count only bracketed tags at start of the line
+    if (/^\s*\[(?:PASS|OK)\]/i.test(ln))  passed++;
+    if (/^\s*\[(?:FAIL|ERROR)\]/i.test(ln)) failed++;
+    if (/warning:/i.test(ln)) warnings++;
   }
-  return {passed, failed, warnings};
+
+  // Fallback: if no bracket tags were found, look for summary lines
+  if (passed === 0 && failed === 0) {
+    const mFail = txt.match(/Failing tests:\s*(\d+)/i);
+    if (mFail) failed += Number(mFail[1]);
+    const mPass = txt.match(/Passing:\s*(\d+)/i);
+    if (mPass) passed += Number(mPass[1]);
+  }
+
+  return { passed, failed, warnings };
 }
+
+
 async function loadResult(key){
   const url = TEST_FILES[key];
   const el  = byId(
@@ -195,11 +214,17 @@ async function loadResult(key){
     const resp = await fetch(url, { cache: "no-store" });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const txt = await resp.text();
-    const s = summarizeForge(txt);
-    const badge =
-      (s.failed>0) ? `<span class="err">FAILED: ${s.failed}</span>` :
-      `<span class="ok">All good (heuristic)</span>`;
-    el.innerHTML = `${badge}\n\n` + esc(txt);
+  const s = summarizeForge(txt);
+  let badge = '';
+  if (s.failed > 0) {
+    badge = `<span class="err">FAILED: ${s.failed}</span>`;
+  } else if (s.passed > 0) {
+    badge = `<span class="ok">All tests passed ✓ (${s.passed})</span>`;
+  } else {
+    badge = `<span class="warn">No tests detected</span>`;
+  }
+  el.innerHTML = `${badge}\n\n` + esc(txt);
+
   } catch (e) {
     el.classList.add("err");
     el.textContent = "Could not load results: " + (e.message || e);
