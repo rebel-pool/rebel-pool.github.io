@@ -203,31 +203,25 @@ function summarizeForge(txt){
 
 async function loadResult(key){
   const url = TEST_FILES[key];
-  const el  = byId(
-    key === "POOL" ? "res-pool" :
-    key === "AQUA" ? "res-aqua" : "res-arc"
-  );
-  if (!url || !el) return;
-  el.classList.remove("ok","err","warn");
-  el.textContent = "Loading test results…";
+  const contract = CONTRACTS.find(c => c.key === key);
+  if (!url || !contract) return;
+
   try {
     const resp = await fetch(url, { cache: "no-store" });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const txt = await resp.text();
-  const s = summarizeForge(txt);
-  let badge = '';
-  if (s.failed > 0) {
-    badge = `<span class="err">FAILED: ${s.failed}</span>`;
-  } else if (s.passed > 0) {
-    badge = `<span class="ok">All tests passed ✓ (${s.passed})</span>`;
-  } else {
-    badge = `<span class="warn">No tests detected</span>`;
-  }
-  el.innerHTML = `${badge}\n\n` + esc(txt);
+    const s = summarizeForge(txt);
+
+    let summary =
+      (s.failed>0) ? `<span class="err">FAILED: ${s.failed}</span>` :
+      (s.passed>0) ? `<span class="ok">All tests passed ✓ (${s.passed})</span>` :
+      `<span class="warn">No tests detected</span>`;
+
+    // Instead of injecting into table cell, open modal
+    showTestResultsModal(contract.label, txt, summary);
 
   } catch (e) {
-    el.classList.add("err");
-    el.textContent = "Could not load results: " + (e.message || e);
+    showTestResultsModal(contract.label, `Could not load results: ${e.message || e}`, "");
   }
 }
 
@@ -254,3 +248,22 @@ byId("tech-notes").textContent =
 
 window.verifyContract = verifyContract;
 window.loadResult = loadResult;
+
+function showTestResultsModal(contractLabel, testText, summary) {
+  let modal = document.createElement("div");
+  modal.className = "modal";
+  modal.innerHTML = `
+    <div class="modal-content" style="text-align:left; max-width:900px; width:95%; max-height:85vh; overflow:auto;">
+      <h2 style="margin-top:0;">${contractLabel} — Test Results</h2>
+      <div style="margin: 10px 0; font-weight:bold;">
+        ${summary}
+      </div>
+      <pre style="background:#f7f7f7; padding:10px; border:1px solid #ccc; white-space:pre-wrap; font-size:12px; line-height:1.45;">${esc(testText)}</pre>
+      <div style="text-align:right; margin-top:12px;">
+        <button onclick="navigator.clipboard.writeText(\`${esc(testText)}\`)">Copy Log</button>
+        <button onclick="this.closest('.modal').remove()">Close</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
