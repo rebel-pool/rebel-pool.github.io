@@ -15,8 +15,6 @@
     .table th, .table td { text-align:left; padding:7px 9px; border-bottom:1px solid #ddd; }
     .table thead tr { background:#e9e9e9; }
     #verify-all { margin: 12px 0 0 0; }
-
-    /* Modal using your existing pattern */
     .modal { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: none; align-items: center; justify-content: center; z-index: 9999; }
     .modal.open { display: flex; }
     .modal-content { background:#fff; color:#000; padding:14px 16px; border:2px solid #333; border-radius:6px;
@@ -103,7 +101,6 @@
 <script src="js/chain.js"></script>
 
 <script>
-/* ===== Masthead clock ===== */
 function updateMastheadDateAndClock() {
   const d = new Date();
   const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -122,12 +119,13 @@ function toGithubBlob(path) {
   return `https://github.com/rebel-pool/rebel-pool.github.io/blob/main/${path.replace(/^\/+/, '')}`;
 }
 
+/* Modal for test results */
 function showTestResultsModal(contractLabel, testText, summaryHTML) {
   const wrap = document.createElement('div');
   wrap.className = 'modal';
   wrap.innerHTML = `
-    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="test-modal-title">
-      <h2 id="test-modal-title">${esc(contractLabel)} — Test Results</h2>
+    <div class="modal-content">
+      <h2>${esc(contractLabel)} — Test Results</h2>
       <div style="margin:10px 0; font-weight:bold;">${summaryHTML || ''}</div>
       <pre style="background:#f7f7f7; padding:10px; border:1px solid #ccc; white-space:pre-wrap; font-size:12px; line-height:1.45;">${esc(testText)}</pre>
       <div style="text-align:right; margin-top:12px;">
@@ -140,26 +138,17 @@ function showTestResultsModal(contractLabel, testText, summaryHTML) {
   function close(){ wrap.classList.remove('open'); setTimeout(()=>wrap.remove(), 120); }
   wrap.addEventListener('click', e => { if (e.target === wrap) close(); });
   wrap.querySelector('#close-modal').addEventListener('click', close);
-  document.addEventListener('keydown', function escClose(ev){ if (ev.key === 'Escape'){ close(); document.removeEventListener('keydown', escClose); }});
   wrap.querySelector('#copy-log').addEventListener('click', async () => {
-    const raw = testText;
-    try { await navigator.clipboard.writeText(raw); } catch {}
+    try { await navigator.clipboard.writeText(testText); } catch {}
   });
-  requestAnimationFrame(() => wrap.classList.add('open'));
+  wrap.classList.add('open');
 }
-
 window.showTestResultsModal = showTestResultsModal;
 
 window.addEventListener("DOMContentLoaded", function() {
   renderNetworkSelector("network-select", () => location.reload());
   const cfg = window.getNetConfig ? getNetConfig() : {};
   const explorerBase = cfg.explorer || "https://testnet.monadscan.com";
-
-  const AQUA = cfg.coin?.aqua?.name || "AquaMON";
-  const AQUA_SYM = cfg.coin?.aqua?.symbol || "stMON";
-  const ARC = cfg.coin?.arc?.name || "ArcMON";
-  const ARC_SYM = cfg.coin?.arc?.symbol || "wstMON";
-
 
   const CONTRACTS = [
     {
@@ -174,7 +163,7 @@ window.addEventListener("DOMContentLoaded", function() {
     },
     {
       key: "AQUA",
-      label: `${AQUA} (${AQUA_SYM})`,
+      label: "AquaMON (stMON)",
       address: cfg.aquamon,
       codePath: "contracts/AquaMON.sol",
       compiler: "Solidity 0.8.24<br>Optimizer: 200",
@@ -184,7 +173,7 @@ window.addEventListener("DOMContentLoaded", function() {
     },
     {
       key: "ARC",
-      label: `${ARC} (${ARC_SYM})`,
+      label: "ArcMON (wstMON)",
       address: cfg.arcmon,
       codePath: "contracts/ArcMON.sol",
       compiler: "Solidity 0.8.24<br>Optimizer: 200",
@@ -199,7 +188,7 @@ window.addEventListener("DOMContentLoaded", function() {
     <tr>
       <td><b>${c.label}</b></td>
       <td>
-        <a href="${explorerBase}/address/${c.address}" target="_blank" style="color:#00308f;">
+        <a href="${explorerBase}/address/${c.address}" target="_blank" rel="noopener" style="color:#00308f;">
           ${c.address}
         </a>
       </td>
@@ -228,10 +217,7 @@ window.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 
-<!-- ethers (verify logic depends on it) -->
 <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
-
-<!-- truth.js should provide: verifyContract(), loadResult() that calls showTestResultsModal() and uses robust summarizeForge -->
 <script src="js/truth.js"></script>
 </body>
 </html>
