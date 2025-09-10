@@ -1,3 +1,4 @@
+<!-- stats.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +10,7 @@
 <body>
   <div class="masthead">
     <div class="masthead-title">REBEL POOL</div>
-    <div class="masthead-copyright">&copy; 2025 Rebel Pool Cooperative. All Rights Reserved.</div>
+    <div class="masthead-copyright">© 2025 Rebel Pool Cooperative. All Rights Reserved.</div>
     <div class="masthead-datebar"></div>
     <div class="masthead-date">
       <span id="masthead-date"></span>
@@ -18,16 +19,16 @@
     <div class="masthead-datebar"></div>
   </div>
 
-  <nav id="topnav" style="display: flex; align-items: center;">
+  <nav id="topnav" style="display:flex;align-items:center;">
     <a href="index.html">Home</a>
     <a href="stake.html">Stake</a>
     <a href="withdraw.html">Withdraw</a>
     <a href="wrap.html">Wrap / Unwrap</a>
     <a href="stats.html" class="active">Pool Stats</a>
     <a href="truth.html">Code Truth</a>
-    <div style="margin-left:auto; display:flex; align-items:center; gap:6px; padding-right: 12px;">
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px;padding-right:12px;">
       <label for="network-select" style="font-size:13px;">Network:</label>
-      <select id="network-select" style="font-size:14px; padding:2px 6px; margin-left:6px;"></select>
+      <select id="network-select" style="font-size:14px;padding:2px 6px;margin-left:6px;"></select>
     </div>
   </nav>
 
@@ -99,13 +100,13 @@
   <footer>
     © 1994–2025 Rebel Pool. Best viewed in Mosaic 2.0. Staking involves risk.
   </footer>
+
   <script src="js/chain.js"></script>
   <script>
     function updateMastheadDateAndClock() {
       const d = new Date();
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      const formattedDate = d.toLocaleDateString('en-US', options).toUpperCase();
-      document.getElementById('masthead-date').textContent = formattedDate;
+      document.getElementById('masthead-date').textContent = d.toLocaleDateString('en-US', options).toUpperCase();
       const hh = String(d.getHours()).padStart(2, '0');
       const mm = String(d.getMinutes()).padStart(2, '0');
       const ss = String(d.getSeconds()).padStart(2, '0');
@@ -116,31 +117,23 @@
 
     window.addEventListener("DOMContentLoaded", function() {
       const cfg = window.getNetConfig ? getNetConfig() : {};
-      const NATIVE = cfg.coin?.native?.name || "Monad";
       const NATIVE_SYM = cfg.coin?.native?.symbol || "MON";
-      const WRAPPED = cfg.coin?.wrapped?.name || "Wrapped Monad";
-      const WRAPPED_SYM = cfg.coin?.wrapped?.symbol || "WMON";
-      const AQUA = cfg.coin?.aqua?.name || "AquaMON";
       const AQUA_SYM = cfg.coin?.aqua?.symbol || "stMON";
-      const ARC = cfg.coin?.arc?.name || "ArcMON";
       const ARC_SYM = cfg.coin?.arc?.symbol || "wstMON";
-
-    
-      document.getElementById("card-stmon-hdr").textContent = `${AQUA} (${AQUA_SYM})`;
-      document.getElementById("card-wstmon-hdr").textContent = `${ARC} (${ARC_SYM})`;
-
+      document.getElementById("card-stmon-hdr").textContent = `${cfg.coin?.aqua?.name || "AquaMON"} (${AQUA_SYM})`;
+      document.getElementById("card-wstmon-hdr").textContent = `${cfg.coin?.arc?.name || "ArcMON"} (${ARC_SYM})`;
       document.getElementById("a-rate-label").textContent = `1 ${AQUA_SYM} ≈`;
       document.getElementById("w-rate-label").textContent = `1 ${ARC_SYM} ≈`;
-
       document.getElementById("tbl-pool-label").textContent = "Pool Core";
-      document.getElementById("tbl-aqua-label").textContent = `${AQUA} (${AQUA_SYM})`;
-      document.getElementById("tbl-arc-label").textContent = `${ARC} (${ARC_SYM})`;
-
+      document.getElementById("tbl-aqua-label").textContent = `${cfg.coin?.aqua?.name || "AquaMON"} (${AQUA_SYM})`;
+      document.getElementById("tbl-arc-label").textContent = `${cfg.coin?.arc?.name || "ArcMON"} (${ARC_SYM})`;
       document.getElementById("desc-aqua").textContent = `* Rebasing over pool shares.`;
       document.getElementById("desc-arc").textContent = `* Non-rebasing wrapped shares.`;
-
       document.getElementById("lbl-tvl").textContent = `TVL (total ${NATIVE_SYM} assets)`;
       document.getElementById("lbl-index").textContent = `Index (1e18, ${AQUA_SYM}/${NATIVE_SYM})`;
+      renderNetworkSelector("network-select", () => {
+        window.dispatchEvent(new Event("rebel:network-changed"));
+      });
     });
   </script>
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>

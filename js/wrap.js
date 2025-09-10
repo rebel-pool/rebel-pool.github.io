@@ -19,8 +19,8 @@ let stmonDecimals = 18, arcmonDecimals = 18;
 
 const $ = (id) => document.getElementById(id);
 
-function getExplorer(type) {
-  const cfg = getNetConfig();
+async function getExplorer(type) {
+  const cfg = await getNetConfig();
   if (!cfg.explorer) return "#";
   if (type === "tx") return `${cfg.explorer}/tx/`;
   if (type === "addr") return `${cfg.explorer}/address/`;
@@ -65,7 +65,7 @@ function autoCloseModal() { setTimeout(closeWrapModal, AUTO_CLOSE_MS); }
 
 // ------- Wallet connect -------
 async function connectWallet() {
-  const cfg = getNetConfig();
+  const cfg = await getNetConfig();
   if (!window.ethereum) { alert("No wallet found (install MetaMask or similar)"); return; }
   await ethereum.request({ method: 'eth_requestAccounts' });
 
@@ -121,7 +121,7 @@ async function ensureAllowance(token, owner, spender, amountBN) {
 }
 
 async function wrapWstmon() {
-  const cfg = getNetConfig();
+  const cfg = await getNetConfig();
   const ui = $("wrap-wstmon-status");
   try {
     const amountStr = $("wrap-wstmon-amount").value;
@@ -201,7 +201,7 @@ async function fillMaxUnwrap() {
 }
 
 async function addWstmonToMetaMask() {
-  const cfg = getNetConfig();
+  const cfg = await getNetConfig();
   if (!window.ethereum) return;
   try {
     await window.ethereum.request({

@@ -26,8 +26,8 @@ let busyWithdraw = false;
 
 const $ = (id) => document.getElementById(id);
 
-function getExplorer(type) {
-  const cfg = getNetConfig();
+async function getExplorer(type) {
+  const cfg = await getNetConfig();
   if (!cfg.explorer) return "#";
   if (type === "tx") return `${cfg.explorer}/tx/`;
   if (type === "addr") return `${cfg.explorer}/address/`;
@@ -70,7 +70,7 @@ function closeModal() { $("withdraw-modal").style.display = "none"; }
 
 // Sanity 
 async function assertWiring() {
-  const cfg = getNetConfig();
+  const cfg = await getNetConfig();
   const [u, a] = await Promise.all([pool.underlying(), pool.aquaToken()]);
   const mismatch = (
     u.toLowerCase() !== cfg.wmon.toLowerCase() ||
@@ -93,7 +93,7 @@ function sleep(ms) {
 
 
 async function connectWallet() {
-  const cfg = getNetConfig();
+  const cfg = await getNetConfig();
   if (!window.ethereum) { alert("No wallet found (install MetaMask or similar)"); return; }
   await ethereum.request({ method: "eth_requestAccounts" });
 
@@ -175,7 +175,7 @@ async function withdrawNow() {
       $("withdraw-status").textContent = "Enter a withdraw amount.";
       return;
     }
-    const cfg = getNetConfig();
+    const cfg = await getNetConfig();
     const net = await provider.getNetwork();
     if (net.chainId !== 10143) {
       showModal(`Wrong network (chainId=${net.chainId}). Switch to Monad testnet (10143).`);

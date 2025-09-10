@@ -1,43 +1,102 @@
-// For the Future (Hopefully a working Plkaceholde)
+// js/validators.js
 
-const NETWORK = "testnet";
-const CHAIN_ID_DEC = 10143;
-const EXPLORER_ADDR = "https://testnet.monadscan.com/address/";
-
-const POOL_ADDRESS    = "0x25E24c54e65a51aa74087B8EE44398Bb4AB231Dd";
-const POOL_ABI = ["function paused() view returns (bool)"];
-
-const REFERENCE_RPC = "https://testnet-rpc.monad.xyz/";
-
-const NODES = [
-  { name: "Monad Public RPC", rpc: "https://testnet-rpc.monad.xyz/" }
-  // here add nodes as comes on line !! 
-];
-
-// RPC guards -> gentle
-const QUERY_TIMEOUT_MS = 2500;
-const SLEEP_MS_ON_429  = 200;
-const AUTO_REFRESH_MS  = 0; 
-
-let providerRef;
-let walletProvider, signer, userAddr, pool;
-let endpoints = [...NODES];
-let autoTimer = null;
-
+// ============ tiny utils ============
 const $ = (id) => document.getElementById(id);
-const rowsEl = $("probe-rows");
+const log = (...a) => console.log("[validators]", ...a);
+const err = (...a) => console.error("[validators]", ...a);
 
-// Not sure if needed lets see
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+function nowISO(){ return new Date().toISOString().replace('T',' ').split('.')[0]; }
+
+function withTimeout(promise, ms) {
+  return Promise.race([
+    promise,
+    new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), ms))
+  ]);
+}
+
+function isRateLimit(e) {
+  const s = String(e && (e.message || e)).toLowerCase();
+  const code = e && e.code;
+  return code === -32005 || code === -32080 || s.includes("too many") || s.includes("429") || s.includes("rate");
+}
+function withRetry(fn, { tries = 5, base = 250, cap = 4000 } = {}) {
+  let last;
+  return (async () => {
+    for (let i = 0; i < tries; i++) {
+      try { return await fn(); }
+      catch (e) {
+        last = e;
+        if (!isRateLimit(e)) throw e;
+        const delay = Math.min(cap, base * (2 ** i)) + Math.floor(Math.random() * 150);
+        log("rate-limited; retrying in", delay, "ms");
+        await sleep(delay);
+      }
+    }
+    throw last;
+  })();
+}
+
+// serialize JSON-RPC calls so we never burst
+function createLimiter(minDelayMs = 300) {
+  let last = 0;
+  return async (fn) => {
+    const now = Date.now();
+    const wait = Math.max(0, last + minDelayMs - now);
+    if (wait) await sleep(wait);
+    try { return await fn(); }
+    finally { last = Date.now(); }
+  };
+}
+const rpcLimiter = createLimiter(300);
+async function limitedRpc(callFn) {
+  return withRetry(() => rpcLimiter(callFn));
+}
+
+// ============ chain config ============
+async function getCfg() {
+  if (!window.getNetConfig) throw new Error("chain.js not loaded");
+  const maybe = window.getNetConfig();
+  return (maybe && typeof maybe.then === "function") ? await maybe : maybe;
+}
+
+// ============ constants / state (init at runtime) ============
+let CHAIN_ID_DEC = 10143;
+let EXPLORER_ADDR = "https://testnet.monadscan.com/address/";
+let POOL_ADDRESS  = "0x0000000000000000000000000000000000000000";
+const POOL_ABI    = ["function paused() view returns (bool)"];
+
+let REFERENCE_RPC = "";
+let endpoints = []; // [{ name, rpc }...]
+
+// tuning
+const QUERY_TIMEOUT_MS = 2500;
+const AUTO_REFRESH_MS  = 0; // disabled by default
+
+// wallet (optional)
+let walletProvider, signer, userAddr, pool;
+
+// dom
+let rowsEl;
+
+// ============ wallet header (optional) ============
 async function bootWalletHeader() {
-  $("connect-btn").style.display = "block";
-  $("wallet-address").style.display = "none";
+  const connectBtn = $("connect-btn");
+  const walletAddr = $("wallet-address");
+  if (!connectBtn || !walletAddr) return;
 
-  if (!window.ethereum) return;
+  connectBtn.style.display = "block";
+  walletAddr.style.display = "none";
 
-  const accts = await window.ethereum.request({ method: "eth_accounts" });
-  if (accts.length > 0) await connectWallet();
+  if (!window.ethereum) {
+    connectBtn.onclick = () => alert("No wallet found (install MetaMask)");
+    return;
+  }
 
-  $("connect-btn").onclick = connectWallet;
+  const accts = await window.ethereum.request({ method: "eth_accounts" }).catch(()=>[]);
+  if (accts && accts.length > 0) await connectWallet();
+
+  connectBtn.onclick = connectWallet;
   window.ethereum.on?.("accountsChanged", () => location.reload());
   window.ethereum.on?.("chainChanged",   () => location.reload());
 }
@@ -46,6 +105,7 @@ async function connectWallet() {
   if (!window.ethereum) { alert("No wallet found (install MetaMask)"); return; }
   await ethereum.request({ method: "eth_requestAccounts" });
 
+  // ethers v5
   walletProvider = new ethers.providers.Web3Provider(window.ethereum);
   signer = walletProvider.getSigner();
   userAddr = await signer.getAddress();
@@ -59,29 +119,22 @@ async function connectWallet() {
   pool = new ethers.Contract(POOL_ADDRESS, POOL_ABI, signer);
 }
 
-function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
-function nowISO(){ return new Date().toISOString().replace('T',' ').split('.')[0]; }
-
-function withTimeout(promise, ms) {
-  return Promise.race([
-    promise,
-    new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), ms))
-  ]);
-}
-
+// ============ probing ============
 async function jsonRpcBlockNumber(rpcUrl) {
-  const prov = new ethers.providers.JsonRpcProvider(rpcUrl, { name: "monad-testnet", chainId: 10143 });
+  // ethers v5 JsonRpcProvider
+  const prov = new ethers.providers.JsonRpcProvider(rpcUrl, { name: "monad-testnet", chainId: CHAIN_ID_DEC });
   try {
-    const n = await withTimeout(prov.getBlockNumber(), QUERY_TIMEOUT_MS);
+    const n = await withTimeout(limitedRpc(() => prov.getBlockNumber()), QUERY_TIMEOUT_MS);
     return { ok: true, block: n };
   } catch (e) {
     const msg = (e?.message || "").toLowerCase();
-    if (msg.includes("too many requests") || e?.code === -32080) {
-      await sleep(SLEEP_MS_ON_429);
+    if (isRateLimit(e)) {
+      // one extra try after a short pause
+      await sleep(200);
       try {
-        const n2 = await withTimeout(prov.getBlockNumber(), QUERY_TIMEOUT_MS);
+        const n2 = await withTimeout(limitedRpc(() => prov.getBlockNumber()), QUERY_TIMEOUT_MS);
         return { ok: true, block: n2, rate: true };
-      } catch (e2) {
+      } catch (_e2) {
         return { ok: false, err: "rate-limited" };
       }
     }
@@ -90,6 +143,14 @@ async function jsonRpcBlockNumber(rpcUrl) {
     }
     return { ok: false, err: msg || "error" };
   }
+}
+
+async function measureLatency(rpcUrl) {
+  const t0 = performance.now();
+  const res = await jsonRpcBlockNumber(rpcUrl);
+  const t1 = performance.now();
+  if (res.ok) res.latency = Math.round(t1 - t0);
+  return res;
 }
 
 function renderRows(data, refBlock) {
@@ -106,7 +167,7 @@ function renderRows(data, refBlock) {
     if (row.ok) {
       blockStr = `#${row.block}`;
       const lag = Math.max(0, refBlock - row.block);
-      lagStr = lag.toString();
+      lagStr = String(lag);
 
       let cls = "ok";
       let label = "OK";
@@ -146,25 +207,19 @@ function renderRows(data, refBlock) {
     btn.onclick = () => {
       const i = +btn.getAttribute("data-idx");
       endpoints.splice(i,1);
-      renderRows(endpoints.map(e => ({...e})), refBlock);
+      renderRows(endpoints.map(e => ({...e})), Number($("ref-block").textContent?.replace("#","")) || 0);
     };
   });
 }
 
-async function measureLatency(rpcUrl) {
-  const t0 = performance.now();
-  const res = await jsonRpcBlockNumber(rpcUrl);
-  const t1 = performance.now();
-  if (res.ok) res.latency = Math.round(t1 - t0);
-  return res;
-}
-
 async function probeAll() {
-  $("btn-refresh").disabled = true;
-  $("ref-rpc").textContent = REFERENCE_RPC;
+  const refreshBtn = $("btn-refresh");
+  if (refreshBtn) refreshBtn.disabled = true;
+
+  $("ref-rpc").textContent = REFERENCE_RPC || "—";
   $("ref-updated").textContent = "Updating…";
 
-  const refRes = await measureLatency(REFERENCE_RPC);
+  const refRes = REFERENCE_RPC ? await measureLatency(REFERENCE_RPC) : { ok:false };
   const refBlock = refRes.ok ? refRes.block : 0;
   $("ref-block").textContent = refBlock ? `#${refBlock}` : "—";
   $("ref-updated").textContent = nowISO();
@@ -172,28 +227,31 @@ async function probeAll() {
   const display = endpoints.map(ep => ({ name: ep.name, rpc: ep.rpc, ok: false }));
   renderRows(display, refBlock);
 
+  // sequential probing; tiny gap to be gentle
   for (let i = 0; i < endpoints.length; i++) {
     const ep = endpoints[i];
     const res = await measureLatency(ep.rpc);
     display[i] = { name: ep.name, rpc: ep.rpc, ...res };
     renderRows(display, refBlock);
+    await sleep(80);
   }
 
-try {
-    const prov = walletProvider || new ethers.providers.JsonRpcProvider(REFERENCE_RPC, { staticNetwork: true });
-    const poolRO = new ethers.Contract(POOL_ADDRESS, POOL_ABI, prov);
-    const paused = await withTimeout(poolRO.paused(), QUERY_TIMEOUT_MS).catch(() => null);
+  // wiring: pool.paused?
+  try {
+    const roProv = new ethers.providers.JsonRpcProvider(REFERENCE_RPC, { name: "monad-testnet", chainId: CHAIN_ID_DEC });
+    const poolRO = new ethers.Contract(POOL_ADDRESS, POOL_ABI, roProv);
+    const paused = await withTimeout(limitedRpc(() => poolRO.paused()), QUERY_TIMEOUT_MS).catch(() => null);
     $("wiring-paused").textContent = paused === null ? "—" : (paused ? "Yes" : "No");
   } catch (_) {
     $("wiring-paused").textContent = "—";
   }
 
-  $("btn-refresh").disabled = false;
+  if (refreshBtn) refreshBtn.disabled = false;
 }
 
 async function probeOne(idx) {
   $("ref-updated").textContent = "Updating…";
-  const refRes = await measureLatency(REFERENCE_RPC);
+  const refRes = REFERENCE_RPC ? await measureLatency(REFERENCE_RPC) : { ok:false };
   const refBlock = refRes.ok ? refRes.block : 0;
   $("ref-block").textContent = refBlock ? `#${refBlock}` : "—";
   $("ref-updated").textContent = nowISO();
@@ -207,37 +265,63 @@ async function probeOne(idx) {
 }
 
 function wireAddEndpoint() {
-  $("btn-add-endpoint").onclick = () => {
-    const name = $("inp-new-name").value.trim() || "Custom RPC";
-    const rpc  = $("inp-new-rpc").value.trim();
+  const addBtn = $("btn-add-endpoint");
+  if (!addBtn) return;
+  addBtn.onclick = () => {
+    const name = $("inp-new-name")?.value.trim() || "Custom RPC";
+    const rpc  = $("inp-new-rpc")?.value.trim();
     if (!rpc || !/^https?:\/\//i.test(rpc)) {
       alert("Enter a valid RPC URL (https://...)");
       return;
     }
     endpoints.push({ name, rpc });
-    $("inp-new-name").value = "";
-    $("inp-new-rpc").value = "";
-    // show immediately
-    renderRows(endpoints.map(e => ({...e})), 0);
+    if ($("inp-new-name")) $("inp-new-name").value = "";
+    if ($("inp-new-rpc")) $("inp-new-rpc").value = "";
+    renderRows(endpoints.map(e => ({...e})), Number($("ref-block").textContent?.replace("#","")) || 0);
   };
 }
 
 function startAuto() {
   if (AUTO_REFRESH_MS > 0) {
     stopAuto();
-    autoTimer = setInterval(probeAll, AUTO_REFRESH_MS);
+    window.__VAL_AUTO__ = setInterval(probeAll, AUTO_REFRESH_MS);
   }
 }
 function stopAuto() {
-  if (autoTimer) clearInterval(autoTimer);
-  autoTimer = null;
+  if (window.__VAL_AUTO__) clearInterval(window.__VAL_AUTO__);
+  window.__VAL_AUTO__ = null;
 }
 
+// ============ init ============
 async function init() {
-  $("ref-rpc").textContent = REFERENCE_RPC;
-  $("btn-refresh").onclick = probeAll;
+  rowsEl = $("probe-rows");
+  if (!rowsEl) { err("No #probe-rows element; aborting."); return; }
+
+  // chain config
+  const cfg = await getCfg();
+  CHAIN_ID_DEC = cfg?.chainId || 10143;
+  EXPLORER_ADDR = (cfg?.explorer ? `${cfg.explorer}/address/` : "https://testnet.monadscan.com/address/");
+  POOL_ADDRESS  = cfg?.pool || "0x0000000000000000000000000000000000000000";
+
+  // reference RPC (single chosen by chain.js)
+  REFERENCE_RPC = cfg?.rpc || (Array.isArray(cfg?.rpcs) && cfg.rpcs[0]) || "";
+  const titleEl = $("network-overview-title");
+  if (titleEl) titleEl.textContent = `Network Overview (${cfg?.label || "Unknown Network"})`;
+  $("ref-rpc").textContent = REFERENCE_RPC || "—";
+
+  // seed endpoint list from cfg.rpcs; label them
+  endpoints = Array.isArray(cfg?.rpcs) && cfg.rpcs.length
+    ? cfg.rpcs.filter(Boolean).map((url, i) => ({ name: i === 0 ? "RPC #1" : `RPC #${i+1}`, rpc: url }))
+    : (REFERENCE_RPC ? [{ name: "Monad Public RPC", rpc: REFERENCE_RPC }] : []);
+
+  // wire UI
+  if ($("btn-refresh")) $("btn-refresh").onclick = probeAll;
   wireAddEndpoint();
+
+  // optional wallet
   await bootWalletHeader();
+
+  // first run
   await probeAll();
   startAuto();
 }

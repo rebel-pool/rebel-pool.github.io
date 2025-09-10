@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function updateChainStats() {
-  const cfg = getNetConfig();
+  const cfg = await getNetConfig();
   try {
     const blockNumRes = await fetch(cfg.rpc, {
       method: "POST",
@@ -81,7 +81,7 @@ async function updateChainStats() {
 }
 
 async function updatePoolStats() {
-  const cfg = getNetConfig();
+  const cfg = await getNetConfig();
   const provider = new ethers.providers.JsonRpcProvider(cfg.rpc);
   const pool = new ethers.Contract(cfg.pool, POOL_ABI, provider);
 
