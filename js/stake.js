@@ -79,7 +79,7 @@ function linkAddr(addr, text){ return `<a href="${EXPLORER_ADDR}${addr}" target=
 
 // Fee guidance hint (shown on low/volatile fees)
 const FEE_HINT_HTML = `<br><small class="muted">
-Network fees look low/volatile. If this fails, wait ~30–60s for the network to stabilize and try again.
+Network fees are looking low/volatile. <br> wait ~30–60s for the network to stabilize and try again.
 </small>`;
 
 // ===== Modals & messages =====
