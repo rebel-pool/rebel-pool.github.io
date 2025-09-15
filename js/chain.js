@@ -6,7 +6,7 @@
 const NETWORKS = {
   "monad-testnet": {
     label: "Monad Testnet",
-    // List every candidate RPC for TESTNET (you can add more as you verify them)
+    chainId: 10143,     
     rpcs: [
       "https://testnet-rpc.monad.xyz",          // official (QuickNode)
       "https://rpc.ankr.com/monad_testnet",     // Ankr
@@ -18,6 +18,7 @@ const NETWORKS = {
     wmon: "0x0f19e23E213F40Cd1dB36AA2486f2DA76586b010",
     aquamon: "0xd4522Ed884254008C04008E3b561dFCF4eFC0306",
     arcmon: "0x19157c7b66Af91083431D616cbD023Cfda3264bd",
+    router: "0x6f6ca25862E5424a00A17775fb97fa71236CCD52",
     coin: {
       native:  { name: "Monad",          symbol: "MON" },
       wrapped: { name: "Wrapped Monad",  symbol: "WMON" },
@@ -30,7 +31,8 @@ const NETWORKS = {
 
   "monad-mainnet": {
     label: "Monad Mainnet (soon)",
-    // Empty until mainnet goes live; leave as [] to avoid accidental use
+    chainId: 0,     
+    // Empty until mainnet goes live
     rpcs: [],
     explorer: "",
     pool: "",
@@ -49,6 +51,7 @@ const NETWORKS = {
 
   "sepolia": {
     label: "Optimism Sepolia (demo)",
+    chainId: 1,     
     rpcs: [],
     explorer: "",
     pool: "",

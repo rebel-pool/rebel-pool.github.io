@@ -65,7 +65,7 @@ async function getResolvedCfg() {
 }
 
 // Wrapper with timeout (prevents hanging eth_requestAccounts)
-async function requestWithTimeout(eth, payload, ms = 120000) {
+async function requestWithTimeout(eth, payload, ms = 40000) {
   ms = W.clamp(ms, 8000, 180000);
   let timer;
   try {
@@ -166,7 +166,7 @@ async function ensureChain(eth, cfg) {
 // Connect accounts with clear errors
 async function requestAccounts(eth) {
   try {
-    return await requestWithTimeout(eth, { method: "eth_requestAccounts" }, 120000);
+    return await requestWithTimeout(eth, { method: "eth_requestAccounts" }, 40000);
   } catch (e) {
     if (e?.code === -32002) throw new Error("Wallet is busy with another request. Check your wallet popup.");
     if (e?.code === 4001) throw new Error("User rejected the connection request.");

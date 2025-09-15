@@ -187,21 +187,42 @@ footer{
 #status-right{ color:#000; font-family:monospace; }
 
 /* ---------- Modal (single clean implementation) ---------- */
-.modal{
-  position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
-  background: rgba(0,0,0,.36); z-index:2000;
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  align-items: center;
+  justify-content: center;
 }
-.modal-content{
-  background:#fff; border-radius:9px; border:1.5px solid #ccc;
-  min-width:320px; max-width:95vw; padding:22px 18px;
-  box-shadow:0 6px 32px #4448;
+
+.modal-content {
+  background: var(--paper);   /* solid white panel */
+  color: var(--ink);
+  padding: 20px 24px;
+  border-radius: 6px;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  position: relative;
+  line-height: 1.5;
 }
-#withdraw-modal button, #stake-modal button{
-  margin-top:12px; background:#e5e7eb; border:1px solid #b8bfc6; border-radius:7px;
-  padding:7px 18px; font-size:1.02em; cursor:pointer; box-shadow:0 2px 6px #bbb3;
-  transition: background .16s;
+
+.modal-close {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  color: var(--paper);
 }
-#withdraw-modal button:hover, #stake-modal button:hover{ background:#d7e1fa; }
+
+.modal-close:hover {
+  color: var(--brand);
+}
 
 /* ---------- Utilities (used across pages inc. Stats) ---------- */
 .cards{ display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:14px; }

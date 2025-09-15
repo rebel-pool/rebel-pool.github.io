@@ -26,6 +26,10 @@ const AQUAMON_ABI = [
   "function sharesOf(address owner) view returns (uint256)"
 ];
 
+const REBEL_NATIVE_ROUTER_ABI = [
+  "function depositNative(address receiver) payable returns (uint256)"
+];
+
 // ===== Pull utilities from rpc-utils.js =====
 const {
   makeReadProvider,
@@ -79,7 +83,7 @@ function linkAddr(addr, text){ return `<a href="${EXPLORER_ADDR}${addr}" target=
 
 // Fee guidance hint (shown on low/volatile fees)
 const FEE_HINT_HTML = `<br><small class="muted">
-Network fees are looking low/volatile. <br> wait ~30–60s for the network to stabilize and try again.
+
 </small>`;
 
 // ===== Modals & messages =====
@@ -98,19 +102,24 @@ function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
 function renderStakeModal(msg, txHash) {
   const modal = $("stake-modal");
-  const link = txHash ? `<br><a href="${EXPLORER_TX}${txHash}" target="_blank" rel="noopener">View on MonadScan</a>` : "";
-  $("stake-modal-msg").innerHTML = `
-    <div>${msg}${link}</div>
-    <div style="text-align:right; margin-top:12px;">
-      <button id="stake-modal-close">Close</button>
-    </div>`;
+  const msgEl = $("stake-modal-msg");
+  const link = txHash ? `<div style="margin-top:8px">${linkTx(txHash, "View on MonadScan ↗")}</div>` : "";
+  msgEl.innerHTML = `<div>${msg}${link}</div>`;
   modal.style.display = "flex";
-  const btn = document.getElementById("stake-modal-close");
-  if (btn) btn.onclick = closeStakeModal;
 }
-function showStakeModal(msg) { renderStakeModal(msg, null); }
-function updateStakeModal(msg, txHash) { renderStakeModal(msg, txHash); }
-function closeStakeModal() { $("stake-modal").style.display = "none"; }
+
+function showStakeModal(msg) {
+  renderStakeModal(msg, null);
+}
+
+function updateStakeModal(msg, txHash) {
+  renderStakeModal(msg, txHash);
+}
+
+function closeStakeModal() {
+  const modal = $("stake-modal");
+  if (modal) modal.style.display = "none";
+}
 
 function showCongratsModal() {
   closeStakeModal();
@@ -120,11 +129,17 @@ function showCongratsModal() {
     <div class="modal-content" style="text-align:center;">
       <h2>Congratulations!</h2>
       <div style="margin: 18px 0;">${pickRandom(stakeCongratsMessages)}</div>
-      <button id="congrats-close-btn">Close</button>
+      <span class="modal-close" style="top:8px;right:10px;">&times;</span>
     </div>`;
+  modal.style.display = "flex";              // 👈 ensure it shows
   document.body.appendChild(modal);
-  modal.querySelector("#congrats-close-btn").onclick = () => modal.remove();
+
+  // close on X
+  modal.querySelector(".modal-close").onclick = () => modal.remove();
+  // close on backdrop
+  modal.addEventListener("click", (e) => { if (e.target === modal) modal.remove(); });
 }
+
 
 // ===== Wiring self-check (RO reads, not wallet) =====
 async function assertWiring() {
@@ -677,7 +692,41 @@ async function init() {
     }
 
     // 8) Wire buttons
-    $("connect-btn").onclick = connectWallet;
+    $("connect-btn").onclick = async () => {
+      const cfg = CFG || await resolveNetConfig();
+      showWalletPicker(cfg, async (inj) => {
+        // Reuse your existing post-connect path
+        injected = inj;
+        // continue with your connectWallet() logic but without eth_requestAccounts again:
+        try { await ensureMonadNetwork(injected, cfg); } catch(e) { console.error(e); return; }
+
+        WALLET_CHAIN_ID_HEX = (injected.chainId || '').toLowerCase?.() || WALLET_CHAIN_ID_HEX;
+        provider = new ethers.providers.Web3Provider(injected, "any");
+        provider.polling = false; provider.pollingInterval = 20000;
+
+        const accounts = await injected.request({ method: "eth_accounts" });
+        userAddr = Array.isArray(accounts) && accounts[0] ? accounts[0] : null;
+        if (!userAddr) { alert("No account found in wallet."); return; }
+
+        signer = provider.getSigner(userAddr);
+        wmon  = new ethers.Contract(CFG.wmon,    WMON_ABI,    signer);
+        stmon = new ethers.Contract(CFG.aquamon, AQUAMON_ABI, signer);
+        pool  = new ethers.Contract(CFG.pool,    POOL_ABI,    signer);
+
+        try { const [d1,d2]=await Promise.all([wmonRO.decimals(), stmonRO.decimals()]); wmonDecimals=d1||18; stmonDecimals=d2||18; } catch {}
+        await assertWiring();
+
+        $("connect-btn").style.display = "none";
+        $("wallet-address").style.display = "block";
+        $("wallet-address").innerHTML = `Connected: ${linkAddr(userAddr, fmtAddr(userAddr))}`;
+
+        injected.on?.("accountsChanged", () => location.reload());
+        injected.on?.("chainChanged",    () => location.reload());
+        injected.on?.("disconnect",      () => location.reload());
+
+        await refreshAllBalances();
+      });
+    };
     $("stake-btn").onclick   = stakeNow;
 
     // 9) Initial wallet UI

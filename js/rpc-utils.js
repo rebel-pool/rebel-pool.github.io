@@ -3,6 +3,7 @@
 // - Global wrapper for ALL injected providers (queue + backoff + modal)
 // - ChainId cache + listener (no spam)
 // - Offload safe reads to RO pool
+// - Global cross-tab wallet-send mutex + pacing
 // - Safe fee guess (RO only) + sendTxWithRetry
 // - Friendly errors
 // - Basic wallet helpers (pickInjectedProvider, ensureMonadNetwork)
@@ -90,11 +91,7 @@
           });
           if (!res.ok) throw new Error(`RO HTTP ${res.status}`);
           const j = await res.json();
-          if (j.error) {
-            const e = new Error(j.error.message);
-            e.code = j.error.code;
-            throw e;
-          }
+          if (j.error) { const e = new Error(j.error.message); e.code = j.error.code; throw e; }
           return j.result;
         } catch (e) { lastErr = e; }
       }
@@ -175,100 +172,141 @@
     return _chainIdInflight;
   }
 
-  // ---------- MetaMask throttle wrapper ----------
-// ---------- MetaMask throttle wrapper with pacing ----------
-const OFFLOAD_TO_RO = new Set([
-  "eth_blockNumber","eth_getBlockByNumber","eth_gasPrice","eth_maxPriorityFeePerGas","eth_feeHistory",
-  "eth_getTransactionByHash","eth_getTransactionReceipt","eth_call","eth_estimateGas","eth_getBalance","eth_getCode"
-]);
+  // ---------- Cross-tab global send mutex ----------
+  const SEND_LOCK_KEY = 'rebel_wallet_send_lock_v1';
+  const SEND_LOCK_TTL = 15000; // 15s refresh window
+  const HAS_BC = typeof BroadcastChannel !== 'undefined';
+  const SEND_CH = HAS_BC ? new BroadcastChannel('rebel_wallet_send') : null;
+  const LOCK_OWNER = Math.random().toString(36).slice(2);
+  const now = ()=>Date.now();
+  function getLock(){ try { return JSON.parse(localStorage.getItem(SEND_LOCK_KEY)||'null'); } catch { return null; } }
+  function setLock(v){ try { localStorage.setItem(SEND_LOCK_KEY, JSON.stringify(v)); } catch {} }
+  function clearLock(){ try { localStorage.removeItem(SEND_LOCK_KEY); } catch {} }
+  async function acquireGlobalSendLock(timeoutMs=20000){
+    const start = now();
+    while (true){
+      const cur = getLock();
+      if (!cur || (now() - cur.t) > SEND_LOCK_TTL){
+        setLock({ id: LOCK_OWNER, t: now() });
+        await sleep(50);
+        const again = getLock();
+        if (again && again.id === LOCK_OWNER) return; // acquired
+      }
+      if (now() - start > timeoutMs) {
+        const err = new Error('Wallet send lock timeout');
+        err.code = 'SEND_LOCK_TIMEOUT';
+        throw err;
+      }
+      await sleep(120);
+    }
+  }
+  function refreshGlobalSendLock(){ const cur=getLock(); if (cur && cur.id===LOCK_OWNER) setLock({ id: LOCK_OWNER, t: now() }); }
+  function releaseGlobalSendLock(){ const cur=getLock(); if (cur && cur.id===LOCK_OWNER) clearLock(); try { SEND_CH?.postMessage('release'); } catch {}
+  }
+  SEND_CH && (SEND_CH.onmessage = ()=>{});
 
-let _lastWalletSendAt = 0;
-const TX_SPACING_MS = 1200; // enforce min gap between wallet sends
+  // ---------- MetaMask throttle wrapper with pacing ----------
+  const OFFLOAD_TO_RO = new Set([
+    'eth_blockNumber','eth_getBlockByNumber','eth_gasPrice','eth_maxPriorityFeePerGas','eth_feeHistory',
+    'eth_getTransactionByHash','eth_getTransactionReceipt','eth_call','eth_estimateGas','eth_getBalance','eth_getCode',
+    'eth_getLogs','eth_maxFeePerGas'
+  ]);
 
-RPCUtils.wrapInjectedRequest = function(inj, opts={}){
-  if (!inj || typeof inj.request!=="function") return inj;
-  if (inj.__rp_wrapped_request) return inj;
+  let _lastWalletSendAt = 0;
+  const TX_SPACING_MS = 2500; // enforce min gap between wallet sends (tune 1200–3000)
 
-  const o = Object.assign({
-    pre: 750, post: 750, base: 1000, maxTries: 6, jitter: 350, debug: true
-  }, opts);
+  RPCUtils.wrapInjectedRequest = function(inj, opts={}){
+    if (!inj || typeof inj.request!=="function") return inj;
+    if (inj.__rp_wrapped_request) return inj;
 
-  const original = inj.request.bind(inj);
-  let queue = Promise.resolve();
-  inj.__rp_wrapped_request = true;
-  inj.requestOriginal = original;
+    const o = Object.assign({ pre: 500, post: 350, base: 1000, maxTries: 6, jitter: 300, debug: true }, opts);
 
-  inj.request = (args)=>{
-    queue = queue.then(async ()=>{
-      const method = args?.method || "unknown";
-      const params = args?.params || [];
+    const original = inj.request.bind(inj);
+    let queue = Promise.resolve();
+    inj.__rp_wrapped_request = true;
+    inj.requestOriginal = original;
 
-      // Offload safe reads to RO
-      if (OFFLOAD_TO_RO.has(method) && roProvider) {
-        try {
-          if (o.debug) console.debug("[mmwrap→ro]", method, params);
-          const res = await RPCUtils.roSend(method, params);
-          if (o.debug) console.debug("[mmwrap←ro]", method, "ok");
+    // keep chainId cache fresh
+    try { inj.removeListener?.('chainChanged', cacheChainId); inj.on?.('chainChanged', (cid)=>{ cacheChainId(cid); }); } catch {}
+
+    inj.request = (args)=>{
+      queue = queue.then(async ()=>{
+        const method = args?.method || 'unknown';
+        const params = args?.params || [];
+
+        // 0) short-circuit eth_chainId using cache
+        if (method === 'eth_chainId') {
+          const cid = _chainIdCache || await getChainIdFromWallet(inj);
+          if (o.debug) console.debug('[mmwrap] ← eth_chainId cached', cid);
           RateLimitUI.hide();
-          return res;
-        } catch (e) {
-          if (o.debug) console.debug("[mmwrap ro-fallback]", method, e);
+          return cid;
         }
-      }
 
-      // Enforce global spacing between wallet-bound sends
-      if (method === "eth_sendTransaction") {
-        const gap = TX_SPACING_MS - (Date.now() - _lastWalletSendAt);
-        if (gap > 0) {
-          if (o.debug) console.debug("[mmwrap] ⏳ pacing send by", gap, "ms");
-          await sleep(gap);
+        // 1) offload safe reads to RO
+        if (OFFLOAD_TO_RO.has(method) && roProvider) {
+          try {
+            if (o.debug) console.debug('[mmwrap→ro]', method, params);
+            const res = await RPCUtils.roSend(method, params);
+            if (o.debug) console.debug('[mmwrap←ro]', method, 'ok');
+            RateLimitUI.hide();
+            return res;
+          } catch (e) {
+            if (o.debug) console.debug('[mmwrap ro-fallback]', method, e);
+          }
         }
-      }
 
-      const pre = o.pre + Math.random()*o.jitter;
-      if (o.debug) console.debug("[mmwrap] →", method, params);
-      await sleep(pre);
+        // wallet-bound?
+        const isWalletSend = (
+          method === 'eth_sendTransaction' ||
+          method === 'eth_signTransaction' ||
+          method.startsWith('eth_signTypedData')
+        );
 
-      let attempt = 0;
-      while (true) {
+        if (isWalletSend) {
+          // cross-tab global lock + spacing gate
+          await acquireGlobalSendLock();
+          const gap = TX_SPACING_MS - (Date.now() - _lastWalletSendAt);
+          if (gap > 0) {
+            if (o.debug) console.debug('[mmwrap] ⏳ pacing send by', gap, 'ms');
+            await sleep(gap);
+          }
+        }
+
+        const pre = o.pre + Math.random()*o.jitter;
+        if (o.debug) console.debug('[mmwrap] →', method, params);
+        await sleep(pre);
+
         try {
-          const res = await original(args);
-          if (o.debug) console.debug("[mmwrap] ←", method, "ok");
-
-          if (method === "eth_sendTransaction") {
-            _lastWalletSendAt = Date.now();
+          let attempt = 0;
+          while (true) {
+            try {
+              const res = await original(args);
+              if (o.debug) console.debug('[mmwrap] ←', method, 'ok');
+              if (isWalletSend) _lastWalletSendAt = Date.now();
+              RateLimitUI.hide();
+              await sleep(o.post);
+              return res;
+            } catch (e) {
+              const msg = (e?.message||'') + ' ' + JSON.stringify(e?.data||{});
+              const rl  = /429|rate limit|-32005|-32603/i.test(msg) || e?.code===-32005 || e?.code===-32603;
+              if (!rl || attempt+1>=o.maxTries) { if (o.debug) console.debug('[mmwrap] ✖', method, 'error (giving up)', e); RateLimitUI.hide(); throw e; }
+              attempt++;
+              const delay = o.base * Math.pow(2, attempt-1) + Math.random()*o.jitter;
+              if (o.debug) console.debug('[mmwrap] ↻', method, `backoff ${Math.round(delay)}ms (attempt ${attempt+1}/${o.maxTries})`);
+              await RateLimitUI.onBackoff({ method, attempt: attempt+1, maxTries: o.maxTries, delayMs: delay });
+              await sleep(delay);
+              if (isWalletSend) refreshGlobalSendLock();
+            }
           }
-
-          RateLimitUI.hide();
-          await sleep(o.post);
-          return res;
-        } catch (e) {
-          const msg = (e?.message||"") + " " + JSON.stringify(e?.data||{});
-          const rl  = /429|rate limit|-32005|-32603/i.test(msg) || e?.code===-32005 || e?.code===-32603;
-          if (!rl || attempt+1>=o.maxTries) {
-            if (o.debug) console.debug("[mmwrap] ✖", method, "error (giving up)", e);
-            RateLimitUI.hide();
-            throw e;
-          }
-          attempt++;
-          const delay = o.base * Math.pow(2, attempt-1) + Math.random()*o.jitter;
-          if (o.debug) console.debug("[mmwrap] ↻", method, `backoff ${Math.round(delay)}ms (attempt ${attempt+1}/${o.maxTries})`);
-          await RateLimitUI.onBackoff({ method, attempt: attempt+1, maxTries: o.maxTries, delayMs: delay });
-          if (RateLimitUI.shouldStop()) {
-            RateLimitUI.hide();
-            const err = new Error("User stopped retries during network congestion");
-            err.code = "USER_ABORT_RATE_LIMIT";
-            throw err;
-          }
-          await sleep(delay);
+        } finally {
+          if (isWalletSend) releaseGlobalSendLock();
         }
-      }
-    });
-    return queue;
+      });
+      return queue;
+    };
+
+    return inj;
   };
-
-  return inj;
-};
 
   // Wrap primary and multiplexed providers so nothing bypasses queue/backoff
   RPCUtils.wrapAllInjected = function(opts){
@@ -342,7 +380,7 @@ RPCUtils.wrapInjectedRequest = function(inj, opts={}){
     while (true) {
       try {
         if (labelHtml && attempt===0) {
-          const hint = `<br><small class="muted">Network fees look low/volatile. If this fails, wait ~30–60s and try again.</small>`;
+          const hint = `<br><small class="muted"></small>`;
           if (typeof window.updateStakeModal === 'function') {
             window.updateStakeModal(`${labelHtml}<br><small>Submitting…</small>${hint}`);
           }

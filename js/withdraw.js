@@ -62,7 +62,7 @@ function linkAddr(addr, text){ return `<a href="${EXPLORER_ADDR}${addr}" target=
 
 // Fee guidance hint (same text we use in stake.js)
 const FEE_HINT_HTML = `<br><small class="muted">
-Network fees look low/volatile. If this fails, wait ~30–60s for the network to stabilize and try again.
+
 </small>`;
 
 // --- Rate-limit UX (informational) ---

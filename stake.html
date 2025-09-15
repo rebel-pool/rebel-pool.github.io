@@ -118,18 +118,11 @@
   <footer>© 1994–2025 Rebel Pool. Best viewed in Mosaic 2.0. Staking involves risk.</footer>
   <div id="stake-modal" class="modal" style="display:none;">
     <div class="modal-content">
+      <span id="stake-modal-close" class="modal-close">&times;</span>
       <div id="stake-modal-msg" style="padding:20px; font-size:1.05em;"></div>
     </div>
   </div>
-  <style>
-    .modal {
-      position:fixed; left:0; top:0; width:100vw; height:100vh;
-      background:rgba(0,0,0,0.36); display:flex; align-items:center; justify-content:center; z-index:2000;
-    }
-    .modal-content {
-      background:#fff; border-radius:7px; min-width:300px; max-width:95vw; box-shadow:0 6px 32px #4448;
-    }
-  </style>
+
   <script src="js/chain.js"></script>
 
   <script>
@@ -166,8 +159,37 @@
     });
   </script>
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+   
   <script src="js/wallet.js"></script>
   <script src="js/rpc-utils.js"></script>
+    <script src="js/wallet-picker.js"></script> 
   <script src="js/stake.js"></script>
+
+<!-- Wallet Picker Modal -->
+<div id="wallet-picker" class="modal" style="display:none">
+  <div class="modal-content" style="max-width:420px">
+    <h3 style="margin:0 0 8px">Connect a Wallet</h3>
+
+    <div id="wp-installed" class="muted" style="margin:10px 0 6px">Installed</div>
+    <div id="wp-installed-list" class="wp-list"></div>
+
+    <div id="wp-popular" class="muted" style="margin:12px 0 6px">Popular</div>
+    <div id="wp-popular-list" class="wp-list"></div>
+
+    <div class="muted" style="margin-top:12px;font-size:.9em">
+      New to Ethereum wallets? <a href="https://ethereum.org/en/wallets/" target="_blank" rel="noopener">Learn more</a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .wp-list { display:flex; flex-direction:column; gap:8px }
+  .wp-item { display:flex; align-items:center; gap:10px; padding:10px; border:1px solid #e3e3e6; border-radius:12px; cursor:pointer }
+  .wp-item:hover { background:#f7f7f9 }
+  .wp-ico { width:24px; height:24px; border-radius:6px; background:#eee; display:inline-block }
+</style>
+
+
+
 </body>
 </html>

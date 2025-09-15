@@ -98,8 +98,23 @@
   © 1994–2025 Rebel Pool. Best viewed in Mosaic 2.0. Staking involves risk.
 </footer>
 
-<script src="js/chain.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+  <script src="js/chain.js"></script>
+  <script>
+    function updateMastheadDateAndClock() {
+      const d = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('masthead-date').textContent = d.toLocaleDateString('en-US', options).toUpperCase();
+      const hh = String(d.getHours()).padStart(2, '0');
+      const mm = String(d.getMinutes()).padStart(2, '0');
+      const ss = String(d.getSeconds()).padStart(2, '0');
+      document.getElementById('masthead-clock').textContent = `${hh}:${mm}:${ss}`;
+    }
+    updateMastheadDateAndClock();
+    setInterval(updateMastheadDateAndClock, 1000);
+
+    
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <script src="js/truth.js" defer></script>
 </body>
 </html>
