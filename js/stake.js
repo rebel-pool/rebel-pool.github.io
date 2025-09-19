@@ -94,7 +94,7 @@ const stakeCongratsMessages = [
   "You did it! You staked like a rebel. Welcome to the fight against staking inequality.",
   "Another rebel joins the cause! Stakers first, VCs never.",
   "Boom! You’re in. It’s not just staking, it’s a movement.",
-  "Staking complete. Please proceed to quietly gloat.",
+  "Deposit complete. Please proceed to quietly gloat.",
   "Welcome to Rebel Pool. Your yield is now on the right side of history.",
   "Stake confirmed! Together, we’re making staking fair again."
 ];
@@ -121,22 +121,20 @@ function closeStakeModal() {
   if (modal) modal.style.display = "none";
 }
 
-function showCongratsModal() {
-  closeStakeModal();
+function showCongratsModal(txHash) {
   const modal = document.createElement("div");
   modal.className = "modal";
   modal.innerHTML = `
     <div class="modal-content" style="text-align:center;">
       <h2>Congratulations!</h2>
       <div style="margin: 18px 0;">${pickRandom(stakeCongratsMessages)}</div>
+      ${txHash ? `<div style="margin-top:8px">${linkTx(txHash, "View Transaction ↗")}</div>` : ""}
       <span class="modal-close" style="top:8px;right:10px;">&times;</span>
     </div>`;
-  modal.style.display = "flex";              // 👈 ensure it shows
+  modal.style.display = "flex";
   document.body.appendChild(modal);
 
-  // close on X
   modal.querySelector(".modal-close").onclick = () => modal.remove();
-  // close on backdrop
   modal.addEventListener("click", (e) => { if (e.target === modal) modal.remove(); });
 }
 
@@ -425,20 +423,19 @@ async function getWalletBalanceWeiSafe(addr) {
   }
 }
 
-// --------- Stake Flow (RO reads; wallet writes; RO waits) ---------
 async function stakeNow() {
   if (busyStake) return;
   busyStake = true;
   try {
-    if (!provider || !signer || !pool || !wmon) {
+    if (!provider || !signer || !userAddr) {
       showStakeModal("Connect your wallet first.");
       return;
     }
 
-    // Verify chain via cached value (we reload on chainChanged).
+    // Check chain
     const wantHex = "0x" + (CFG.chainId || CHAIN_ID_DEC).toString(16);
     if (WALLET_CHAIN_ID_HEX && WALLET_CHAIN_ID_HEX.toLowerCase() !== wantHex.toLowerCase()) {
-      showStakeModal(`Wrong network (chainId=${parseInt(WALLET_CHAIN_ID_HEX,16)}). Switch to Monad Testnet (${parseInt(wantHex,16)}).`);
+      showStakeModal(`Wrong network. Switch to Monad Testnet (${parseInt(wantHex,16)}).`);
       return;
     }
 
@@ -451,148 +448,39 @@ async function stakeNow() {
     }
     const parsedAmount = ethers.utils.parseUnits(amountStr, 18);
 
-    // RO reads
-    const [roMonBal, paused, wmonBalRO] = await Promise.all([
-      roProvider.getBalance(userAddr).catch(() => null),
-      poolRO.paused().catch(() => false),
-      wmonRO.balanceOf(userAddr).catch(() => ZERO),
-    ]);
-    if (paused) { showStakeModal("Pool is paused. Try again later."); return; }
-
-    // Prefer wallet’s own balance view for fee gating
-    let monBalWei = await getWalletBalanceWeiSafe(userAddr);
-    if (!monBalWei) monBalWei = roMonBal ?? ZERO;
-
-    // How much we still need to wrap to reach stake amount
-    const needWrap = wmonBalRO.gte(parsedAmount) ? ZERO : parsedAmount.sub(wmonBalRO);
-
-    // Fees (RO only) → overrides for wallet txs
+    // Fees
     const fee = await getNetworkFeeGuessSafe();
     const feeOverrides = fee.eip1559
       ? { type: 2, maxFeePerGas: fee.maxFeePerGas, maxPriorityFeePerGas: fee.maxPriorityFeePerGas }
       : { gasPrice: fee.gasPrice };
 
-    // Gas estimates via RO (with safe fallbacks)
-    const bump = (g) => g.mul(118).div(100); // +18%
-    let gasWrap = ZERO, gasApprove = ZERO, gasStake = ZERO;
+    // Router contract
+    const router = new ethers.Contract(CFG.router, REBEL_NATIVE_ROUTER_ABI, signer);
 
-    if (needWrap.gt(0)) {
-      gasWrap = await wmonRO.estimateGas.deposit({ from: userAddr, value: needWrap }).catch(() => ethers.BigNumber.from(80000));
-      gasWrap = bump(gasWrap);
-    }
+    // Estimate gas (safe fallback if fails)
+    let gasStake = await router.estimateGas.depositNative(userAddr, { value: parsedAmount })
+      .catch(() => ethers.BigNumber.from(180000));
+    gasStake = gasStake.mul(118).div(100);
 
-    const currentAllowance = await wmonRO.allowance(userAddr, CFG.pool).catch(() => ZERO);
-    if (currentAllowance.lt(parsedAmount)) {
-      gasApprove = await wmonRO.estimateGas.approve(CFG.pool, MaxUint256, { from: userAddr }).catch(() => ethers.BigNumber.from(65000));
-      gasApprove = bump(gasApprove);
-    }
-
-    gasStake = await poolRO.estimateGas.deposit(parsedAmount, userAddr, { from: userAddr }).catch(() => ethers.BigNumber.from(160000));
-    gasStake = bump(gasStake);
-
-    const perGas = fee.eip1559 ? fee.maxFeePerGas : fee.gasPrice;
-    const cost = (g) => g.mul(perGas);
-
-    if (FUNDS_DEBUG) {
-      console.debug("[stake/funds] amount(wei):", parsedAmount.toString());
-      console.debug("[stake/funds] wmonBalRO(wei):", wmonBalRO.toString());
-      console.debug("[stake/funds] needWrap(wei):", needWrap.toString());
-      console.debug("[stake/funds] monBalWei(wallet view, wei):", monBalWei.toString());
-      console.debug("[stake/gas] wrap:", gasWrap.toString(), "approve:", gasApprove.toString(), "stake:", gasStake.toString());
-      if (fee.eip1559) {
-        console.debug("[stake/fee]", { maxFeePerGas: perGas.toString(), maxPriorityFeePerGas: fee.maxPriorityFeePerGas.toString() });
-      } else {
-        console.debug("[stake/fee]", { gasPrice: perGas.toString() });
-      }
-    }
-
-    // 1) WRAP (only shortfall)
-    if (needWrap.gt(0)) {
-      const needForWrap = needWrap.add(cost(gasWrap));
-      if (monBalWei.lt(needForWrap)) {
-        const need = ethers.utils.formatUnits(needForWrap, 18);
-        const have = ethers.utils.formatUnits(monBalWei, 18);
-        showStakeModal(`Insufficient MON for wrap + gas.<br>Need ~${Number(need).toFixed(6)}, have ${Number(have).toFixed(6)}.`);
-        $("stake-status").textContent = "Insufficient funds";
-        return;
-      }
-      await sleep(350);
-      showStakeModal("Wrapping MON to WMON…<br><small>Network busy? We’ll auto-retry with backoff.</small>" + FEE_HINT_HTML);
-
-      const tx1 = await sendTxWithRetry(
-        (overrides) => wmon.deposit({ value: needWrap, ...overrides }),
-        fee,
-        gasWrap,
-        "Wrapping MON to WMON…"
-      );
-      updateStakeModal("Waiting for confirmation…", tx1.hash);
-      await roProvider.waitForTransaction(tx1.hash, 1);
-      await sleep(900);
-      monBalWei = await getWalletBalanceWeiSafe(userAddr) || monBalWei;
-    }
-
-    // 2) APPROVE (if needed)
-    if (currentAllowance.lt(parsedAmount)) {
-      const needForApprove = cost(gasApprove);
-      if (monBalWei.lt(needForApprove)) {
-        const need = ethers.utils.formatUnits(needForApprove, 18);
-        const have = ethers.utils.formatUnits(monBalWei, 18);
-        showStakeModal(`Insufficient MON to pay approval gas.<br>Need ~${Number(need).toFixed(6)}, have ${Number(have).toFixed(6)}.`);
-        $("stake-status").textContent = "Insufficient funds";
-        return;
-      }
-      await sleep(350);
-      updateStakeModal("Approving WMON for Pool…<br><small>Network busy? We’ll auto-retry with backoff.</small>" + FEE_HINT_HTML);
-
-      const approveTx = await sendTxWithRetry(
-        (overrides) => wmon.approve(CFG.pool, MaxUint256, overrides),
-        fee,
-        gasApprove,
-        "Approving WMON for Pool…"
-      );
-      updateStakeModal("Waiting for approval…", approveTx.hash);
-      await roProvider.waitForTransaction(approveTx.hash, 1);
-      await sleep(900);
-      monBalWei = await getWalletBalanceWeiSafe(userAddr) || monBalWei;
-    }
-
-    // 3) STAKE
-    const needForStake = cost(gasStake);
-    if (monBalWei.lt(needForStake)) {
-      const need = ethers.utils.formatUnits(needForStake, 18);
-      const have = ethers.utils.formatUnits(monBalWei, 18);
-      showStakeModal(`Insufficient MON to pay stake gas.<br>Need ~${Number(need).toFixed(6)}, have ${Number(have).toFixed(6)}.`);
-      $("stake-status").textContent = "Insufficient funds";
-      return;
-    }
-    await sleep(600);
-    updateStakeModal("Staking WMON in Pool…<br><small>Network busy? We’ll auto-retry with backoff.</small>" + FEE_HINT_HTML);
-
-    const stakeTx = await sendTxWithRetry(
-      (overrides) => pool.deposit(parsedAmount, userAddr, overrides),
+    // Show modal + send tx
+    showStakeModal("Staking MON to Rebel Pool" + FEE_HINT_HTML);
+    const tx = await sendTxWithRetry(
+      (overrides) => router.depositNative(userAddr, { value: parsedAmount, ...overrides }),
       fee,
       gasStake,
-      "Staking WMON in Pool…"
+      "Staking MON in Rebel Pool"
     );
 
-    updateStakeModal("Waiting for confirmation…", stakeTx.hash);
-    await sleep(600);
-    await roProvider.waitForTransaction(stakeTx.hash, 1);
+    updateStakeModal("Waiting for Confirmation…", tx.hash);
+    await roProvider.waitForTransaction(tx.hash, 1);
 
-    // Done
-    updateStakeModal(
-      "Staked! Your stMON (AquaMON) will appear shortly." +
-      `<br>${linkTx(stakeTx.hash, "View stake tx")}` +
-      `<br><button onclick='closeStakeModal()'>Close</button>`
-    );
-    $("stake-status").textContent = "Staked! Watch your MON grow.";
-    $("stake-amount").value = "";
+    // Success
     await refreshAllBalances();
     closeStakeModal();
     showCongratsModal();
 
   } catch (err) {
-    console.error("[stake] error:", err);
+    console.error("[quickStake] error:", err);
     const msg = friendlyError(err);
     updateStakeModal(`Error: ${msg}<br><button onclick="closeStakeModal()">Close</button>`);
     $("stake-status").textContent = `Error: ${msg.replace(/<br>/g, " ")}`;
