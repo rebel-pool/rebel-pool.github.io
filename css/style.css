@@ -264,10 +264,10 @@ footer{
 .card-header {
   background:#e9e9e9;
   border-bottom:1px solid #c8c8c8;
-  padding:8px 10px;
+  padding:4px 6px;
   font-weight:bold;
 }
-.card-body { padding:12px; }
+.card-body { padding:2px; }
 
 /* top bar (wallet/address strip) */
 .bar {
@@ -324,3 +324,168 @@ button.primary {
   .row { flex-direction:column; }
   .kv  { grid-template-columns: 1fr; }
 }
+
+
+
+
+/* Keep existing card look consistent (page-level override) */
+.main-card {
+  padding: 16px;
+  background: #fff;
+  border: 1px solid #cfcfcf;
+  border-radius: 6px;
+}
+
+.main-card .card-header {
+  text-align: center;
+  box-shadow:#00308f;
+  text-shadow: #008b23;
+  border-bottom: #000;
+}
+
+/* tiny notes used in modal */
+.note {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+
+/* ensure modal-close sits on visible background (override if needed) */
+.modal .modal-close {
+  color: #333;
+}
+
+/* make the AC modal inputs comfortable on mobile */
+#ac-modal input[type="text"],
+#ac-modal input[type="number"] {
+  padding: 6px 8px;
+  border: 1px solid #cfcfcf;
+  border-radius: 4px;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+/* keep primary/btn styles consistent if not already present */
+.btn.primary {
+  background: #1ea956;
+  color: #fff;
+  border-color: transparent;
+}
+
+/* toggle switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+}
+.switch input { display:none; }
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0;
+  right: 0; bottom: 0;
+  background-color: #ccc;
+  transition: .2s;
+  border-radius: 22px;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px; width: 16px;
+  left: 3px; bottom: 3px;
+  background-color: white;
+  transition: .2s;
+  border-radius: 50%;
+}
+input:checked + .slider {
+  background-color: #2ecc71;
+}
+input:checked + .slider:before {
+  transform: translateX(18px);
+}
+.info-icon {
+  font-size: 0.9em;
+  margin-left: 6px;
+  cursor: pointer;
+  color: #3b82f6; /* nice blue, matches info feel */
+}
+.info-icon:hover {
+  color: #1d4ed8; /* darker blue on hover */
+}
+
+.automation-sep {
+  border: none;
+  border-top: 1px solid var(--border-lo);
+  margin: 0px 0;
+}
+.automation-trigger {
+  padding: 2px 0;
+}
+
+.trigger-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.trigger-header > div {
+  flex: 1;
+}
+
+.trigger-summary {
+  font-size: 0.9em;
+  margin-top: 0px;
+}
+
+.stake-input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#stake-amount {
+  flex: 1;
+  padding: 6px;
+  font-size: 0.95em;
+}
+
+#stake-btn {
+  padding: 6px 12px;
+  font-size: 0.95em;
+  cursor: pointer;
+}
+
+.stake-status {
+  font-size: 0.9em;
+  margin-top: 4px;
+}
+
+.modal-content.compact {
+  padding: 14px 18px;
+  font-size: 13px;
+}
+
+.automation-trigger.compact {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 6px 0;
+}
+
+.automation-trigger.compact strong {
+  font-size: 0.95em;
+}
+
+.automation-trigger.compact .muted.small {
+  font-size: 0.78em;
+  margin-top: 1px;
+  opacity: 0.75;
+}
+
+.automation-sep {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 6px 0;
+}
+

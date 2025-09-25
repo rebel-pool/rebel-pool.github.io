@@ -6,12 +6,16 @@
 const NETWORKS = {
   "monad-testnet": {
     label: "Monad Testnet",
-    chainId: 10143,     
+    chainId: 10143,
     rpcs: [
       "https://testnet-rpc.monad.xyz",          // official (QuickNode)
       "https://rpc.ankr.com/monad_testnet",     // Ankr
       "https://monad-testnet.rpc.tatum.io",     // Tatum
       "https://monad-testnet.rpc.thirdweb.com"  // thirdweb
+    ],
+    ws: [
+      "wss://testnet-rpc.monad.xyz",      // QuickNode WS
+      "wss://rpc-testnet.monadinfra.com"  // Monad Foundation WS
     ],
     explorer: "https://testnet.monadscan.com",
     pool: "0x25E24c54e65a51aa74087B8EE44398Bb4AB231Dd",
@@ -19,6 +23,7 @@ const NETWORKS = {
     aquamon: "0xd4522Ed884254008C04008E3b561dFCF4eFC0306",
     arcmon: "0x19157c7b66Af91083431D616cbD023Cfda3264bd",
     router: "0x6f6ca25862E5424a00A17775fb97fa71236CCD52",
+    ruleDelegation: "0x83a050A961127C1D8968E8DF40DE8310EC786C8A", 
     coin: {
       native:  { name: "Monad",          symbol: "MON" },
       wrapped: { name: "Wrapped Monad",  symbol: "WMON" },
@@ -31,9 +36,9 @@ const NETWORKS = {
 
   "monad-mainnet": {
     label: "Monad Mainnet (soon)",
-    chainId: 0,     
-    // Empty until mainnet goes live
+    chainId: 0,
     rpcs: [],
+    ws: [],
     explorer: "",
     pool: "",
     wmon: "",
@@ -51,8 +56,9 @@ const NETWORKS = {
 
   "sepolia": {
     label: "Optimism Sepolia (demo)",
-    chainId: 1,     
+    chainId: 1,
     rpcs: [],
+    ws: [],
     explorer: "",
     pool: "",
     wmon: "",
@@ -68,6 +74,29 @@ const NETWORKS = {
     disabled: true
   }
 };
+
+// --- Fast helpers (no RPC ping) ---
+function getSelectedNetworkKey() {
+  let key = localStorage.getItem("rebel_network");
+  if (!key || NETWORKS[key]?.disabled) {
+    key = Object.entries(NETWORKS).find(([k, v]) => !v.disabled)?.[0];
+  }
+  return key;
+}
+
+function getStaticNetConfig() {
+  const key = getSelectedNetworkKey();
+  return NETWORKS[key]; // direct reference (treat as read-only)
+}
+
+// Optional: WS candidates (prefer explicit ws[], fallback to wss:// from https://)
+function getWsCandidates(cfgLike) {
+  const cfg = cfgLike || getStaticNetConfig();
+  if (Array.isArray(cfg?.ws) && cfg.ws.length) return cfg.ws;
+  return (cfg?.rpcs || [])
+    .map(u => (u.startsWith("https://") ? u.replace(/^https:/, "wss:") : null))
+    .filter(Boolean);
+}
 
 // ------------------------------------
 // Network selector (unchanged behavior)
@@ -125,8 +154,8 @@ async function getNetConfig() {
 // -> Then use cfg.rpc everywhere (reads/writes), no dropdown needed.
 // -----------------------------------------------------------------
 async function getResolvedNetConfig() {
-  const base = getNetConfig();                // includes rpcs[]
-  const cfg  = JSON.parse(JSON.stringify(base)); // deep clone
+  const base = await getNetConfig();               // ← await was missing
+  const cfg  = JSON.parse(JSON.stringify(base));   // deep clone
   try {
     cfg.rpc = await pickWorkingRpc(base);
   } catch (e) {
@@ -211,8 +240,8 @@ async function fetchWithFallback(body, cfgLike) {
 // (Optional) helper: explorer URL base by type
 // ---------------------------------------------
 function getExplorerBase(type) {
-  const cfg = getNetConfig();
-  if (!cfg.explorer) return "#";
+  const cfg = getStaticNetConfig(); // use sync version
+  if (!cfg?.explorer) return "#";
   if (type === "tx")   return `${cfg.explorer}/tx/`;
   if (type === "addr") return `${cfg.explorer}/address/`;
   if (type === "tok")  return `${cfg.explorer}/token/`;
@@ -220,9 +249,13 @@ function getExplorerBase(type) {
 }
 
 // Export to global (if not using modules)
-window.renderNetworkSelector   = window.renderNetworkSelector   || renderNetworkSelector;
-window.getNetConfig            = window.getNetConfig            || getNetConfig;
-window.getResolvedNetConfig    = window.getResolvedNetConfig    || getResolvedNetConfig;
-window.fetchWithFallback       = window.fetchWithFallback       || fetchWithFallback;
-window.getExplorerBase         = window.getExplorerBase         || getExplorerBase;
-window.pickWorkingRpc          = window.pickWorkingRpc          || pickWorkingRpc;
+window.renderNetworkSelector    = window.renderNetworkSelector    || renderNetworkSelector;
+window.getNetConfig             = window.getNetConfig             || getNetConfig;
+window.getResolvedNetConfig     = window.getResolvedNetConfig     || getResolvedNetConfig;
+window.fetchWithFallback        = window.fetchWithFallback        || fetchWithFallback;
+window.getExplorerBase          = window.getExplorerBase          || getExplorerBase;
+window.pickWorkingRpc           = window.pickWorkingRpc           || pickWorkingRpc;
+
+window.getStaticNetConfig      = window.getStaticNetConfig      || getStaticNetConfig;
+window.getSelectedNetworkKey   = window.getSelectedNetworkKey   || getSelectedNetworkKey;
+window.getWsCandidates         = window.getWsCandidates         || getWsCandidates;

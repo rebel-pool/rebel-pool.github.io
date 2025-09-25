@@ -8,6 +8,7 @@
 // - Friendly errors
 // - Basic wallet helpers (pickInjectedProvider, ensureMonadNetwork)
 // - Optional coalesced block polling
+// - Node health helpers (status, block info, balances)
 
 ;(function (global) {
   const RPCUtils = {};
@@ -16,6 +17,7 @@
   // ---------- Mini helpers ----------
   function esc(s){ return String(s||"").replace(/[&<>"]/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;" }[c])); }
   const sleep = (ms)=>new Promise(r=>setTimeout(r,ms));
+  const hasEthers = ()=> typeof global.ethers !== "undefined";
 
   // ---------- Rate-limit modal ----------
   const RateLimitUI = (function(){
@@ -318,30 +320,41 @@
   };
 
   // ---------- Fees + retry ----------
-  RPCUtils.getNetworkFeeGuessSafe = async function(){
-    let base=null, tip=null;
+RPCUtils.getNetworkFeeGuessSafe = async function() {
+  if (!roProvider) throw new Error("RO provider not initialized");
+  if (!hasEthers()) throw new Error("Ethers not loaded for fee math");
+  const { BigNumber, utils } = global.ethers;
 
-    try {
-      const latest = await RPCUtils.roSend('eth_getBlockByNumber', ['latest', false]);
-      if (latest && latest.baseFeePerGas) base = ethers.BigNumber.from(latest.baseFeePerGas);
-    } catch {}
+  try {
+    // Try EIP-1559 style first
+    const latest = await RPCUtils.roSend("eth_getBlockByNumber", ["latest", false]).catch(()=>null);
+    const tipHex = await RPCUtils.roSend("eth_maxPriorityFeePerGas", []).catch(()=>null);
 
-    try {
-      const tipHex = await RPCUtils.roSend('eth_maxPriorityFeePerGas', []);
-      if (tipHex) tip = ethers.BigNumber.from(tipHex);
-    } catch {
-      tip = ethers.utils.parseUnits('2', 'gwei');
-    }
-    if (!tip || tip.isZero()) tip = ethers.utils.parseUnits('2', 'gwei');
-
-    if (base) {
-      const maxFeePerGas = base.mul(12).div(10).add(tip); // +20%
+    if (latest?.baseFeePerGas) {
+      const base = BigNumber.from(latest.baseFeePerGas);
+      const tip  = tipHex ? BigNumber.from(tipHex) : utils.parseUnits("2", "gwei");
+      const maxFeePerGas = base.mul(12).div(10).add(tip);
       return { eip1559: true, maxFeePerGas, maxPriorityFeePerGas: tip };
     }
-    const gpHex = await RPCUtils.roSend('eth_gasPrice', []);
-    const gasPrice = ethers.BigNumber.from(gpHex).mul(5).div(4); // +25%
-    return { eip1559: false, gasPrice };
-  };
+  } catch (e) {
+    console.warn("[rpc-utils] getNetworkFeeGuessSafe EIP-1559 failed, falling back:", e);
+  }
+
+  // Fallback: legacy gasPrice
+  try {
+    const gpHex = await RPCUtils.roSend("eth_gasPrice", []).catch(()=>null);
+    if (gpHex) {
+      const gasPrice = global.ethers.BigNumber.from(gpHex).mul(5).div(4);
+      return { eip1559: false, gasPrice };
+    }
+  } catch (e) {
+    console.warn("[rpc-utils] getNetworkFeeGuessSafe gasPrice fallback failed:", e);
+  }
+
+  // Final hardcoded fallback
+  return { eip1559: false, gasPrice: global.ethers.utils.parseUnits("1", "gwei") };
+};
+
 
   function isFeeTooLow(err){
     const s = String(err?.reason || err?.error?.message || err?.message || err || '').toLowerCase();
@@ -381,8 +394,8 @@
       try {
         if (labelHtml && attempt===0) {
           const hint = `<br><small class="muted"></small>`;
-          if (typeof window.updateStakeModal === 'function') {
-            window.updateStakeModal(`${labelHtml}<br><small>Submitting…</small>${hint}`);
+          if (typeof global.updateStakeModal === 'function') {
+            global.updateStakeModal(`${labelHtml}<br><small>Submitting…</small>${hint}`);
           }
         }
         const tx = await fnSend(overrides);
@@ -396,7 +409,7 @@
           overrides = {
             type: 2,
             maxFeePerGas: baseFee.maxFeePerGas.mul(Math.round(factor*100)).div(100),
-            maxPriorityFeePerGas: baseFee.maxPriorityFeePerGas.add(ethers.utils.parseUnits(String(tipBump), 'gwei')),
+            maxPriorityFeePerGas: baseFee.maxPriorityFeePerGas.add(global.ethers.utils.parseUnits(String(tipBump), 'gwei')),
             gasLimit
           };
         } else {
@@ -404,9 +417,9 @@
         }
         const nextAttempt = attempt+1;
         const total = MAX_RETRIES+1;
-        if (typeof window.updateStakeModal === 'function') {
+        if (typeof global.updateStakeModal === 'function') {
           const hint = `<br><small class="muted">Network fees look low/volatile. If this fails, wait ~30–60s for fees to stabilize and try again.</small>`;
-          window.updateStakeModal(`${labelHtml}<br><small>Fee too low — retrying with a higher tip (attempt ${nextAttempt} of ${total})…</small>${hint}`);
+          global.updateStakeModal(`${labelHtml}<br><small>Fee too low — retrying with a higher tip (attempt ${nextAttempt} of ${total})…</small>${hint}`);
         }
       }
     }
@@ -423,6 +436,52 @@
       } catch {}
     }, 4000);
     return ()=>{ _blkSubs.delete(fn); if(!_blkSubs.size){ clearInterval(_blkTimer); _blkTimer=null; } };
+  };
+
+  // ---------- Node Health Helpers ----------
+  RPCUtils.getNodeStatus = async function() {
+    if (!roProvider) throw new Error("RO provider not initialized");
+
+    const [cid, clientVersion, peerCount, syncing, protocol, listening] = await Promise.allSettled([
+      RPCUtils.roSend("eth_chainId", []),
+      RPCUtils.roSend("web3_clientVersion", []),
+      RPCUtils.roSend("net_peerCount", []),
+      RPCUtils.roSend("eth_syncing", []),
+      RPCUtils.roSend("eth_protocolVersion", []),
+      RPCUtils.roSend("net_listening", [])
+    ]);
+
+    function ok(p) { return p.status === "fulfilled" ? p.value : null; }
+
+    return {
+      chainId: ok(cid),
+      clientVersion: ok(clientVersion),
+      peerCount: ok(peerCount) ? parseInt(ok(peerCount), 16) : null,
+      syncing: ok(syncing) && ok(syncing) !== false ? ok(syncing) : false,
+      protocolVersion: ok(protocol),
+      listening: ok(listening)
+    };
+  };
+
+  RPCUtils.getBlockInfo = async function(tag = "latest") {
+    if (!roProvider) throw new Error("RO provider not initialized");
+    const block = await RPCUtils.roSend("eth_getBlockByNumber", [tag, false]);
+    return {
+      number: block?.number ? parseInt(block.number, 16) : null,
+      timestamp: block?.timestamp ? new Date(parseInt(block.timestamp, 16) * 1000) : null,
+      txCount: Array.isArray(block?.transactions) ? block.transactions.length : 0,
+      baseFeePerGas: block?.baseFeePerGas || null,
+      miner: block?.miner || null,
+      hash: block?.hash || null,
+      raw: block
+    };
+  };
+
+  RPCUtils.getBalance = async function(addr) {
+    if (!roProvider) throw new Error("RO provider not initialized");
+    if (!hasEthers()) throw new Error("Ethers not loaded for BigNumber math");
+    const balHex = await RPCUtils.roSend("eth_getBalance", [addr, "latest"]);
+    return balHex ? global.ethers.BigNumber.from(balHex) : global.ethers.BigNumber.from(0);
   };
 
   // ---------- expose ----------

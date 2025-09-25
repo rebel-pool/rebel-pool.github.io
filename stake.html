@@ -11,35 +11,8 @@
   <link rel="icon" type="image/png" sizes="96x96" href="favicon-96.png">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
-  <link rel="apple-touch-icon" sizes="57x57" href="apple-icon-57x57.png">
-  <link rel="apple-touch-icon" sizes="60x60" href="apple-icon-60x60.png">
-  <link rel="apple-touch-icon" sizes="72x72" href="apple-icon-72x72.png">
-  <link rel="apple-touch-icon" sizes="76x76" href="apple-icon-76x76.png">
-  <link rel="apple-touch-icon" sizes="114x114" href="apple-icon-114x114.png">
-  <link rel="apple-touch-icon" sizes="120x120" href="apple-icon-120x120.png">
-  <link rel="apple-touch-icon" sizes="144x144" href="apple-icon-144x144.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="apple-icon-152x152.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-icon-180x180.png">
-  <link rel="icon" type="image/png" sizes="192x192"  href="android-icon-192x192.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  <link rel="manifest" href="manifest.json">
-  <meta name="msapplication-TileColor" content="#ffffff">
-  <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
   <meta name="theme-color" content="#ffffff">
-
-
-  <!-- Meta for wallets & apps -->
-  <meta name="application-name" content="Rebel Pool">
-  <meta name="theme-color" content="#000000">
   <meta name="description" content="Rebel Pool — Monad Testnet Liquid Staking (stMON/wstMON). 100% yield to stakers. No VC skim.">
-
-  <meta property="og:title" content="Rebel Pool">
-  <meta property="og:description" content="Liquid staking on Monad Testnet. No VC skim — all yield to stakers.">
-  <meta property="og:image" content="https://rebel-pool.github.io/social-card.png">
-  <meta property="og:url" content="https://rebel-pool.github.io/">
-  <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
   <div class="masthead">
@@ -74,8 +47,15 @@
       <a href="about.html">About</a>
     </div>
     <div id="main">
-      <div class="main-card" >
-        <h2 id="stake-title">Stake MON, Earn stMON</h2>
+      <div class="main-card">
+            <div class="card-header">
+              <div>
+                <strong>Stake MON, Earn stMON</strong>
+                <div class="muted" style="font-size: .8em;">
+                  The only Zero Skim Liquid Stake Pool on Monad!
+                </div>
+              </div>
+            </div>
         <div id="wallet-ui">
           <button id="connect-btn">Connect Wallet</button>
           <div id="wallet-address" style="margin:10px 0 6px 0; display:none;"></div>
@@ -91,12 +71,11 @@
             <button id="stake-btn" style="margin-left:10px;">Stake Now</button>
             <div id="stake-status" style="font-size:0.96em;margin-top:4px;"></div>
           </div>
-          
           <hr>
           <div style="margin-bottom:10px;">
             <b>Estimated APR:</b>
             <span id="stat-apr">–</span>
-            <span id="apr-hint" title="APR is computed from pool activity. If pool is new or empty, this is a target APR.">ℹ️</span>
+            <span id="apr-hint" class="info-icon1" onclick="showAPRInfoModal()">ℹ️</span>
           </div>
           <div id="yield-estimate" style="margin:14px 0 10px 0; font-size:0.97em;">
             <b>Projected <span id="aqua-sym-label2">stMON</span> if you hold:</b><br>
@@ -109,87 +88,148 @@
             <button id="add-token-btn" onclick="addTokenToMetaMask('stMON')">Add stMON to Wallet</button>
           </div>
           <div style="margin-top:10px; font-size:0.9em;">
-            <a id="view-stmon-link" href="#" target="_blank" rel="noopener">View stMON on MonadScan</a>
+            <a id="view-stmon-link" href="#" target="_blank" rel="noopener">View stMON on Explorer</a>
           </div>
+          <hr>
+          <div style="margin-top:16px; text-align:center;">
+            <button id="open-automations-btn" class="btn primary">Advanced Automations</button>
+          </div>
+          <div id="active-bots-summary" style="
+              margin-top:12px;
+              font-size:0.9em;
+              color:#333;
+              background:#f9f9f9;
+              border:1px solid #ddd;
+              border-radius:6px;
+              padding:8px 10px;
+            "></div>
+          
+        </div>
         </div>
       </div>
     </div>
   </div>
+
   <footer>© 1994–2025 Rebel Pool. Best viewed in Mosaic 2.0. Staking involves risk.</footer>
-  <div id="stake-modal" class="modal" style="display:none;">
-    <div class="modal-content">
-      <span id="stake-modal-close" class="modal-close">&times;</span>
-      <div id="stake-modal-msg" style="padding:20px; font-size:1.05em;"></div>
+
+<!-- Automations Modal -->
+<div id="automations-modal" class="modal" style="display:none;">
+  <div class="modal-content compact" style="max-width:480px;">
+    <span id="automations-close" class="modal-close">&times;</span>
+    <h3 style="margin:0 0 6px;">Advanced Automations</h3>
+    <p class="muted" style="margin:0 0 10px; font-size:0.9em;">
+      Configure on-chain triggers for your staking.
+    </p>
+
+    <!-- Recommended toggle -->
+    <div class="automation-trigger compact">
+      <label class="switch">
+        <input type="checkbox" id="recommended-toggle">
+        <span class="slider"></span>
+      </label>
+      <div>
+        <b>Recommended Automations</b>
+        <div class="muted" style="font-size:0.8em;">Automatically set best defaults.</div>
+      </div>
     </div>
-  </div>
+    <hr class="automation-sep">
 
-  <script src="js/chain.js"></script>
-
-  <script>
-    function updateMastheadDateAndClock() {
-      const d = new Date();
-      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      const formattedDate = d.toLocaleDateString('en-US', options).toUpperCase();
-      document.getElementById('masthead-date').textContent = formattedDate;
-      const hh = String(d.getHours()).padStart(2, '0');
-      const mm = String(d.getMinutes()).padStart(2, '0');
-      const ss = String(d.getSeconds()).padStart(2, '0');
-      document.getElementById('masthead-clock').textContent = `${hh}:${mm}:${ss}`;
-    }
-    updateMastheadDateAndClock();
-    setInterval(updateMastheadDateAndClock, 1000);
-
-    if (window.renderNetworkSelector) renderNetworkSelector("network-select", ()=>location.reload());
-
-    window.addEventListener("DOMContentLoaded", function() {
-      const cfg = window.getNetConfig ? getNetConfig() : {};
-      const NATIVE = cfg.coin?.native?.name || "Monad";
-      const NATIVE_SYM = cfg.coin?.native?.symbol || "MON";
-      const AQUA = cfg.coin?.aqua?.name || "AquaMON";
-      const AQUA_SYM = cfg.coin?.aqua?.symbol || "stMON";
-      document.getElementById("stake-title").textContent = `Stake ${NATIVE_SYM}, Earn ${AQUA_SYM}`;
-      document.getElementById("native-sym-label").textContent = NATIVE_SYM + ":";
-      document.getElementById("aqua-sym-label").textContent = AQUA_SYM + ":";
-      document.getElementById("aqua-sym-label2").textContent = AQUA_SYM;
-    
-      document.getElementById("stake-amount").placeholder = `Amount to stake (${NATIVE_SYM})`;
-    
-      document.getElementById("add-token-btn").textContent = `Add ${AQUA_SYM} to Wallet`;
-      document.getElementById("view-stmon-link").textContent = `View ${AQUA_SYM} on Explorer`;
-    });
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-   
-  <script src="js/wallet.js"></script>
-  <script src="js/rpc-utils.js"></script>
-    <script src="js/wallet-picker.js"></script> 
-  <script src="js/stake.js"></script>
-
-<!-- Wallet Picker Modal -->
-<div id="wallet-picker" class="modal" style="display:none">
-  <div class="modal-content" style="max-width:420px">
-    <h3 style="margin:0 0 8px">Connect a Wallet</h3>
-
-    <div id="wp-installed" class="muted" style="margin:10px 0 6px">Installed</div>
-    <div id="wp-installed-list" class="wp-list"></div>
-
-    <div id="wp-popular" class="muted" style="margin:12px 0 6px">Popular</div>
-    <div id="wp-popular-list" class="wp-list"></div>
-
-    <div class="muted" style="margin-top:12px;font-size:.9em">
-      New to Ethereum wallets? <a href="https://ethereum.org/en/wallets/" target="_blank" rel="noopener">Learn more</a>
+    <!-- Automations list -->
+    <div id="automations-list">
+      <div class="automation-trigger compact">
+        <div>
+          <strong>Auto-Compound</strong> <span class="info-icon" data-info="info-auto-compound">ℹ️</span>
+          <div class="muted small">Re-stake rewards automatically.</div>
+        </div>
+        <label class="switch"><input type="checkbox" id="ac-toggle"><span class="slider"></span></label>
+      </div>
+      <hr>
+      <div class="automation-trigger compact">
+        <div>
+          <strong>Scheduled DCA</strong> <span class="info-icon" data-info="info-dca">ℹ️</span>
+          <div class="muted small">Deposit MON on a recurring schedule.</div>
+        </div>
+        <label class="switch"><input type="checkbox" id="dca-toggle"><span class="slider"></span></label>
+      </div>
+      <hr>
+      <div class="automation-trigger compact">
+        <div>
+          <strong>Validator Switch</strong> <span class="info-icon" data-info="info-validator">ℹ️</span>
+          <div class="muted small">Move stake to higher-yield validators.</div>
+        </div>
+        <label class="switch"><input type="checkbox" id="vs-toggle"><span class="slider"></span></label>
+      </div>
+      <hr>
+      <div class="automation-trigger compact">
+        <div>
+          <strong>Partial Stop-Loss</strong> <span class="info-icon" data-info="info-stoploss">ℹ️</span>
+          <div class="muted small">Redeem part of stake if drawdown hits.</div>
+        </div>
+        <label class="switch"><input type="checkbox" id="sl-toggle"><span class="slider"></span></label>
+      </div>
+      <hr>
+      <div class="automation-trigger compact">
+        <div>
+          <strong>Harvest & Convert</strong> <span class="info-icon" data-info="info-harvest">ℹ️</span>
+          <div class="muted small">Swap rewards into MON or stablecoin.</div>
+        </div>
+        <label class="switch"><input type="checkbox" id="hc-toggle"><span class="slider"></span></label>
+      </div>
+      <hr>
+      <div class="automation-trigger compact">
+        <div>
+          <strong>Yield Rebalance</strong> <span class="info-icon" data-info="info-rebalance">ℹ️</span>
+          <div class="muted small">Route deposits to best strategies.</div>
+        </div>
+        <label class="switch"><input type="checkbox" id="yr-toggle"><span class="slider"></span></label>
+      </div>
+      <hr>
+      <div class="automation-trigger compact">
+        <div>
+          <strong>Suggestions</strong> <span class="info-icon" data-info="info-suggest">ℹ️</span>
+          <div class="muted small">Receive nudges without automation.</div>
+        </div>
+        <label class="switch"><input type="checkbox" id="sg-toggle"><span class="slider"></span></label>
+      </div>
+    </div>
+<div id="automations-status" class="muted" style="margin-top:12px; font-size:0.9em; text-align:center;">
+</div>
+    <div style="margin-top:12px; text-align:center;">
+      <button id="save-automations-btn" class="btn primary">Activate your Bots</button>
     </div>
   </div>
 </div>
 
-<style>
-  .wp-list { display:flex; flex-direction:column; gap:8px }
-  .wp-item { display:flex; align-items:center; gap:10px; padding:10px; border:1px solid #e3e3e6; border-radius:12px; cursor:pointer }
-  .wp-item:hover { background:#f7f7f9 }
-  .wp-ico { width:24px; height:24px; border-radius:6px; background:#eee; display:inline-block }
-</style>
+<div id="info-modal" class="modal" style="display:none;">
+  <div class="modal-content" style="max-width:500px;">
+    <span id="info-modal-close" class="modal-close">&times;</span>
+    <h3 id="info-modal-title">Info</h3>
+    <div id="info-modal-body" style="margin-top:10px; font-size:0.95em; line-height:1.5;">
+      Loading…
+    </div>
+  </div>
+</div>
 
+<!-- Transaction Info Modal -->
+<div id="txinfo-modal" class="modal" style="display:none;">
+  <div class="modal-content" style="max-width:420px; text-align:center;">
+    <span id="txinfo-modal-close" class="modal-close">&times;</span>
+    <h3 id="txinfo-modal-title">Transaction in Progress</h3>
+    <div id="txinfo-modal-body" style="margin-top:10px; font-size:0.95em; line-height:1.5;">
+      Please confirm the transaction in your wallet…
+    </div>
+    <div id="txinfo-modal-spinner" style="margin-top:16px;">
+      ⏳
+    </div>
+  </div>
+</div>
 
-
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="js/chain.js"></script>
+  <script src="js/wallet.js"></script>
+  <script src="js/rpc-utils.js"></script>
+  <script src="js/wallet-picker.js"></script>
+  <script src="js/stake.js"></script>
+  <script src="js/agent.js"></script>
 </body>
 </html>

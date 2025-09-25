@@ -10,15 +10,6 @@ function toGithubBlob(path){
 const log = (...a)=>console.log("[truth]", ...a);
 const err = (...a)=>console.error("[truth]", ...a);
 
-// ---------- clock ----------
-function startClock(){
-  const d = new Date();
-  const fmt = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
-  const hh = String(d.getHours()).padStart(2,'0'), mm = String(d.getMinutes()).padStart(2,'0'), ss = String(d.getSeconds()).padStart(2,'0');
-  byId('masthead-date').textContent = d.toLocaleDateString('en-US', fmt).toUpperCase();
-  byId('masthead-clock').textContent = `${hh}:${mm}:${ss}`;
-}
-function initClock(){ startClock(); setInterval(startClock, 1000); }
 
 // ---------- forge test summary ----------
 function summarizeForge(txt){
@@ -175,7 +166,6 @@ window.addEventListener("DOMContentLoaded", async () => {
   if (window.renderNetworkSelector) {
     window.renderNetworkSelector("network-select", () => location.reload());
   }
-  initClock();
 
   const cfg = await getConfigAwaited();
   const rpc = (cfg && (cfg.rpc || (Array.isArray(cfg.rpcs) && cfg.rpcs[0]))) || "";

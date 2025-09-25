@@ -65,7 +65,6 @@
     return "https://testnet-rpc.monad.xyz";
   }
 
-  // NEW: await getNetConfig() if it returns a Promise
   async function getConfigAwaited() {
     if (!global.getNetConfig) return null;
     const maybe = global.getNetConfig();
